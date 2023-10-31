@@ -1,4 +1,7 @@
 package com.safetynet.alerts.repositories;
 
-public interface FirestationRepositories {
+import com.safetynet.alerts.model.Firestation;
+import org.springframework.data.repository.CrudRepository;
+
+public interface FirestationRepositories extends CrudRepository<Firestation, Long> {
 }

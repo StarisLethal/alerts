@@ -1,9 +1,8 @@
 package com.safetynet.alerts;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jsoniter.JsonIterator;
-import com.jsoniter.any.Any;
 import com.safetynet.alerts.model.Firestation;
 import com.safetynet.alerts.model.MedicalRecord;
 import com.safetynet.alerts.model.Person;
@@ -17,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class DataLoader implements CommandLineRunner {
@@ -40,25 +40,23 @@ public class DataLoader implements CommandLineRunner {
         List<Person> persons = new ArrayList<>();
         List<Firestation> firestations = new ArrayList<>();
         List<MedicalRecord> medicalRecords = new ArrayList<>();
-
+        JsonNode json;
 
         try (InputStream inputStream = TypeReference.class.getResourceAsStream("/json/data.json")) {
-            Any json = JsonIterator.deserialize(inputStream.readAllBytes());
+            json = objectMapper.readValue(inputStream, JsonNode.class);
 
-            Any personsNode = json.get("*", "persons");
+            JsonNode personsNode = json.get("persons");
 
-            if (personsNode != null){
-                for (Any personNode : personsNode){
-
-
-                    persons.add(personNode);
-                    System.out.println(persons);
+            if (personsNode != null && personsNode.isArray()){
+                for (JsonNode personNode : personsNode){
+                    Person person = objectMapper.treeToValue(personNode, Person.class);
+                    persons.add(person);
                 }
             }else {
                 throw new IllegalArgumentException("Invalid Json format for Person");
             }
 
-            /*JsonNode firestationsNode = json.get("firestations");
+            JsonNode firestationsNode = json.get("firestations");
 
             if (firestationsNode != null && firestationsNode.isArray()) {
                 for (JsonNode firestationNode : firestationsNode) {
@@ -78,15 +76,15 @@ public class DataLoader implements CommandLineRunner {
                 }
             } else {
                 throw new IllegalArgumentException("Invalid Json format for MedicalRecords");
-            }*/
+            }
 
         } catch (IOException e) {
             throw new RuntimeException("Failed to read Json Data", e);
         }
 
-        //personRepositories.saveAll(persons);
-        firestationRepositories.saveAll(firestations);
-        medicalRecordRepositories.saveAll(medicalRecords);
+            personRepositories.saveAll(persons);
+            firestationRepositories.saveAll(firestations);
+            medicalRecordRepositories.saveAll(medicalRecords);
 
 
     }

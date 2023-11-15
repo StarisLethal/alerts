@@ -1,9 +1,10 @@
 package com.safetynet.alerts;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jsoniter.JsonIterator;
-import com.jsoniter.any.Any;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.safetynet.alerts.model.Firestation;
 import com.safetynet.alerts.model.MedicalRecord;
 import com.safetynet.alerts.model.Person;
@@ -13,22 +14,19 @@ import com.safetynet.alerts.repositories.PersonRepositories;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class DataLoader implements CommandLineRunner {
 
-    private final ObjectMapper objectMapper;
     private final PersonRepositories personRepositories;
     private final FirestationRepositories firestationRepositories;
     private final MedicalRecordRepositories medicalRecordRepositories;
 
 
-    public DataLoader(ObjectMapper objectMapper, PersonRepositories personRepositories, FirestationRepositories firestationRepositories, MedicalRecordRepositories medicalRecordRepositories) {
-        this.objectMapper = objectMapper;
+    public DataLoader(PersonRepositories personRepositories, FirestationRepositories firestationRepositories, MedicalRecordRepositories medicalRecordRepositories) {
         this.personRepositories = personRepositories;
         this.firestationRepositories = firestationRepositories;
         this.medicalRecordRepositories = medicalRecordRepositories;
@@ -42,51 +40,50 @@ public class DataLoader implements CommandLineRunner {
         List<MedicalRecord> medicalRecords = new ArrayList<>();
 
 
-        try (InputStream inputStream = TypeReference.class.getResourceAsStream("/json/data.json")) {
-            Any json = JsonIterator.deserialize(inputStream.readAllBytes());
+Gson gson = new Gson();
 
-            Any personsNode = json.get("*", "persons");
+        try (FileReader fileReader = new FileReader("C:\\Users\\letha\\IdeaProjects\\alerts\\src\\main\\resources\\json\\data.json")) {
+            JsonElement jsonElement = gson.fromJson(fileReader, JsonElement.class);
 
-            if (personsNode != null){
-                for (Any personNode : personsNode){
+            if (jsonElement.isJsonObject()) {
+                JsonElement personsJson = jsonElement.getAsJsonObject().getAsJsonArray("persons");
+                JsonElement firestationsJson = jsonElement.getAsJsonObject().getAsJsonArray("firestations");
+                JsonElement medicalrecordsJson = jsonElement.getAsJsonObject().getAsJsonArray("medicalrecords");
 
+                JsonArray jsonArrayPersons = personsJson.getAsJsonArray();
+                JsonArray jsonArrayStations = firestationsJson.getAsJsonArray();
+                JsonArray jsonArrayRecords = medicalrecordsJson.getAsJsonArray();
 
-                    persons.add(personNode);
-                    System.out.println(persons);
+                for (JsonElement element : jsonArrayPersons) {
+                    if (element.isJsonObject()) {
+                        JsonObject jsonObject = element.getAsJsonObject();
+                        persons.add(gson.fromJson(jsonObject, Person.class));
+                    }
                 }
-            }else {
-                throw new IllegalArgumentException("Invalid Json format for Person");
+
+                for (JsonElement element : jsonArrayStations) {
+                    if (element.isJsonObject()) {
+                        JsonObject jsonObject = element.getAsJsonObject();
+                        firestations.add(gson.fromJson(jsonObject, Firestation.class));
+
+                    }
+                }
+
+                for (JsonElement element : jsonArrayRecords) {
+                    if (element.isJsonObject()) {
+                        JsonObject jsonObject = element.getAsJsonObject();
+                        medicalRecords.add(gson.fromJson(jsonObject, MedicalRecord.class));
+                    }
+                }
             }
-
-            /*JsonNode firestationsNode = json.get("firestations");
-
-            if (firestationsNode != null && firestationsNode.isArray()) {
-                for (JsonNode firestationNode : firestationsNode) {
-                    Firestation firestation = objectMapper.treeToValue(firestationNode, Firestation.class);
-                    firestations.add(firestation);
-                }
-            } else {
-                throw new IllegalArgumentException("Invalid Json format for Firestations");
-            }
-
-            JsonNode medicalRecordsNode = json.get("medicalrecords");
-
-            if (medicalRecordsNode != null && medicalRecordsNode.isArray()) {
-                for (JsonNode medicalRecordNode : medicalRecordsNode) {
-                    MedicalRecord medicalRecord = objectMapper.treeToValue(medicalRecordNode, MedicalRecord.class);
-                    medicalRecords.add(medicalRecord);
-                }
-            } else {
-                throw new IllegalArgumentException("Invalid Json format for MedicalRecords");
-            }*/
-
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to read Json Data", e);
         }
-
-        //personRepositories.saveAll(persons);
-        firestationRepositories.saveAll(firestations);
-        medicalRecordRepositories.saveAll(medicalRecords);
+        if (personRepositories.existsById(1L)) {
+            System.out.println("base de donnée déja remplis");
+        }   else{
+            personRepositories.saveAll(persons);
+            firestationRepositories.saveAll(firestations);
+            medicalRecordRepositories.saveAll(medicalRecords);
+        }
 
 
     }

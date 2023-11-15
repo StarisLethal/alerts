@@ -1,7 +1,6 @@
 package com.safetynet.alerts.model;
 
-import com.jsoniter.annotation.JsonProperty;
-import com.jsoniter.fuzzy.MaybeStringIntDecoder;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,7 +17,7 @@ public class Person {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @JsonProperty(decoder = MaybeStringIntDecoder.class)
+
     private Long id;
 
     private String firstName;

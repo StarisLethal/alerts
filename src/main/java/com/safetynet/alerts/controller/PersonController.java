@@ -10,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -44,11 +46,6 @@ public class PersonController {
         return personService.get(id);
     }
 
-    @GetMapping("/communityEmail")
-    public List<String> getAllCityMail(@RequestParam final String city){
-        return personService.getAllEmails(city);
-    }
-
     @PostMapping("/person")
     public ResponseEntity<Person> createPerson (@RequestBody Person person) {
         Person createdPerson = personService.save(person);
@@ -69,6 +66,23 @@ public class PersonController {
 
         return ResponseEntity.ok(personDetails);
     }
+
+    @DeleteMapping("/person/{id}")
+    public Map<String,Boolean> deletePerson (@PathVariable long id) throws ResourceNotFoundException {
+
+        Person deletedPerson = personRepositories.findById(id).orElseThrow(() -> new ResourceNotFoundException("Person not exist with id: " + id));
+
+        personRepositories.delete(deletedPerson);
+        Map<String,Boolean> response = new HashMap<>();
+        response.put("deleted", Boolean.TRUE);
+        return response;
+    }
+
+    @GetMapping("/communityEmail")
+    public List<String> getAllCityMail(@RequestParam final String city){
+        return personService.getAllEmails(city);
+    }
+
 }
 
 

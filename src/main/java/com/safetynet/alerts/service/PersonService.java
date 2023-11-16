@@ -38,16 +38,22 @@ public class PersonService {
     public  List<String> getAllEmails (String city) {
 
         if ("Culver".equalsIgnoreCase(city)) {
-            List<Person> personList = (List<Person>) personRepositories.findAll();
-            return personList.stream()
-                    .map(Person::getEmail)
-                    .collect(Collectors.toList());
 
+            List<Person> personList = (List<Person>) personRepositories.findAll();
+            return personList.stream().map(Person::getEmail).collect(Collectors.toList());
 
         }else{
             return null;
         }
+    }
 
+/*    public Optional<Person> getPersonNAAM(String firstName, String lastName){
+        Optional<Person> personOptional = personRepositories.findByFirstNameAndLastName(firstName, lastName);
+        Person person = personOptional.get();
 
+        return Optional.of(new Person(person.getFirstName(),person.getLastName(),person.getAddress(),person.getEmail()));
+    }*/
+    public void delete (Long id){
+        personRepositories.deleteById(id);
     }
 }

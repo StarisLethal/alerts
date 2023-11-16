@@ -67,12 +67,13 @@ public class PersonController {
         return ResponseEntity.ok(personDetails);
     }
 
-    @DeleteMapping("/person/{id}")
-    public Map<String,Boolean> deletePerson (@PathVariable long id) throws ResourceNotFoundException {
+    @DeleteMapping("/person{firstName}{lastName}")
+    public Map<String,Boolean> deletePerson (@RequestParam String firstName, @RequestParam String lastName) throws ResourceNotFoundException {
 
-        Person deletedPerson = personRepositories.findById(id).orElseThrow(() -> new ResourceNotFoundException("Person not exist with id: " + id));
+        Long idDeletedPerson = personRepositories.findByFirstNameAndLastName(firstName, lastName);
 
-        personRepositories.delete(deletedPerson);
+
+        personService.delete(idDeletedPerson);
         Map<String,Boolean> response = new HashMap<>();
         response.put("deleted", Boolean.TRUE);
         return response;
@@ -83,6 +84,12 @@ public class PersonController {
         return personService.getAllEmails(city);
     }
 
+/*    @GetMapping("/personInfo")
+    public ResponseEntity<Person> getNAAM (@RequestParam String firstName, @RequestParam String lastName){
+        Optional<Person> personOptional = personService.getPersonNAAM(firstName, lastName);
+
+        return personOptional.map(person -> new ResponseEntity<>(person, HttpStatus.OK)).orElseThrow();
+    }*/
 }
 
 

@@ -3,6 +3,7 @@ package com.safetynet.alerts.service;
 import com.safetynet.alerts.model.Person;
 import com.safetynet.alerts.repositories.PersonRepositories;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 @Service
 public class PersonService {
 
+    @Autowired
     private PersonRepositories personRepositories;
 
     public PersonService(PersonRepositories personRepositories) {
@@ -47,13 +49,7 @@ public class PersonService {
         }
     }
 
-/*    public Optional<Person> getPersonNAAM(String firstName, String lastName){
-        Optional<Person> personOptional = personRepositories.findByFirstNameAndLastName(firstName, lastName);
-        Person person = personOptional.get();
-
-        return Optional.of(new Person(person.getFirstName(),person.getLastName(),person.getAddress(),person.getEmail()));
-    }*/
-    public void delete (Long id){
-        personRepositories.deleteById(id);
+    public  List<Object[]> getPersonByAddress (String address){
+        return personRepositories.findByAddressForFire(address);
     }
 }

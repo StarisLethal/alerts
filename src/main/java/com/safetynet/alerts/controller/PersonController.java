@@ -68,12 +68,11 @@ public class PersonController {
     }
 
     @DeleteMapping("/person{firstName}{lastName}")
-    public Map<String,Boolean> deletePerson (@RequestParam String firstName, @RequestParam String lastName) throws ResourceNotFoundException {
+    public Map<String,Boolean> deletePerson (@RequestParam String firstName, @RequestParam String lastName){
 
         Long idDeletedPerson = personRepositories.findByFirstNameAndLastName(firstName, lastName);
 
-
-        personService.delete(idDeletedPerson);
+        personRepositories.deleteById(idDeletedPerson);
         Map<String,Boolean> response = new HashMap<>();
         response.put("deleted", Boolean.TRUE);
         return response;

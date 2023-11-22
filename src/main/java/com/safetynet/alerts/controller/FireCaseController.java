@@ -26,7 +26,7 @@ public class FireCaseController {
     @GetMapping("/fire")
     public fireCaseDTO getAddressInfo(@RequestParam String address){
         List<Object[]> personList = personService.getPersonByAddress(address);
-        String firestation = firestationService.getFireStationByAddress(address);
+        List<Object[]> firestation = firestationService.getFireStationByAddress(address);
 
         return new fireCaseDTO(personList, firestation);
     }

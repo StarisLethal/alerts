@@ -11,6 +11,6 @@ import java.util.List;
 public class fireCaseDTO {
 
     private List<Object[]> personList;
-    private String firestations;
+    private List<Object[]> firestations;
 
 }

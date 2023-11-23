@@ -28,6 +28,8 @@ public class FirestationService {
         return firestationRepositories.saveAll(firestations);
     }
 
+
+
     public List<Object[]> getFireStationByAddress(String address){
 
         return firestationRepositories.findByAddressForFire(address);

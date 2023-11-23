@@ -70,7 +70,7 @@ public class PersonController {
     @DeleteMapping("/person{firstName}{lastName}")
     public Map<String,Boolean> deletePerson (@RequestParam String firstName, @RequestParam String lastName){
 
-        Long idDeletedPerson = personRepositories.findByFirstNameAndLastName(firstName, lastName);
+        Long idDeletedPerson = personRepositories.findIdByFirstNameAndLastName(firstName, lastName);
 
         personRepositories.deleteById(idDeletedPerson);
         Map<String,Boolean> response = new HashMap<>();
@@ -83,12 +83,6 @@ public class PersonController {
         return personService.getAllEmails(city);
     }
 
-/*    @GetMapping("/personInfo")
-    public ResponseEntity<Person> getNAAM (@RequestParam String firstName, @RequestParam String lastName){
-        Optional<Person> personOptional = personService.getPersonNAAM(firstName, lastName);
-
-        return personOptional.map(person -> new ResponseEntity<>(person, HttpStatus.OK)).orElseThrow();
-    }*/
 }
 
 

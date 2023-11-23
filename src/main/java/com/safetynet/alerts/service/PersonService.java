@@ -49,6 +49,10 @@ public class PersonService {
         }
     }
 
+    public  List<Object[]> getPersonByCompleteName (String firstName, String lastName){
+        return personRepositories.findPersonInfoByCompleteName(firstName, lastName);
+    }
+
     public  List<Object[]> getPersonByAddress (String address){
         return personRepositories.findByAddressForFire(address);
     }

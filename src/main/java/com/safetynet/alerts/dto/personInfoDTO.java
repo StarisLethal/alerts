@@ -8,9 +8,10 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class fireCaseDTO {
+public class personInfoDTO {
 
     private List<Object[]> personList;
-    private List<Object[]> firestations;
+    private List<Object[]> medicalRecord;
+
 
 }

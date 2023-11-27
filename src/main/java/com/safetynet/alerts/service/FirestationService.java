@@ -34,4 +34,10 @@ public class FirestationService {
 
         return firestationRepositories.findByAddressForFire(address);
     }
+
+    public List<Object[]> getAddressByFireStationNumber(String firestationNumber){
+
+        return firestationRepositories.findByFireStationNumber(firestationNumber);
+
+    }
 }

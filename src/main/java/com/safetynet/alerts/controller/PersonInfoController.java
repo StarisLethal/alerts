@@ -1,8 +1,9 @@
 package com.safetynet.alerts.controller;
 
-import com.safetynet.alerts.dto.FloodAndFireDTO;
+import com.safetynet.alerts.dto.FireDTO;
+import com.safetynet.alerts.dto.FloodDTO;
 import com.safetynet.alerts.dto.PersonFireInfoDTO;
-import com.safetynet.alerts.dto.personInfoDTO;
+import com.safetynet.alerts.dto.PersonFloodDTO;
 import com.safetynet.alerts.service.FirestationService;
 import com.safetynet.alerts.service.MedicalRecordService;
 import com.safetynet.alerts.service.PersonService;
@@ -28,15 +29,16 @@ public class PersonInfoController {
     private MedicalRecordService medicalRecordService;
 
     @GetMapping("/personInfo")
-    public personInfoDTO getAddressInfo(@RequestParam String firstName, @RequestParam String lastName) {
-        List<Object[]> personList = personService.getPersonByCompleteName(firstName, lastName);
+    public PersonFireInfoDTO getAddressInfo(@RequestParam String firstName, @RequestParam String lastName) {
+        List<String> personList = personService.getPersonByCompleteName(firstName, lastName);
+        int age = medicalRecordService.getAgeByCompleteName(firstName, lastName);
         List<Object[]> medicalRecordList = medicalRecordService.getMedicalRecordByCompleteName(firstName, lastName);
 
-        return new personInfoDTO(personList, medicalRecordList);
+        return new PersonFireInfoDTO(personList, age, medicalRecordList);
     }
 
     @GetMapping("/fire")
-    public FloodAndFireDTO getFireInfo(@RequestParam String address) {
+    public FireDTO getFireInfo(@RequestParam String address) {
 
         List<Object[]> personList = personService.getPersonByAddress(address);
         List<Object[]> firestationNumber = firestationService.getFireStationByAddress(address);
@@ -51,9 +53,45 @@ public class PersonInfoController {
             int age = medicalRecordService.getAgeByCompleteName(firstName, lastName);
             List<String> personDetails = Arrays.asList(firstName, lastName, phone);
 
-            persons.add(new PersonFireInfoDTO(personDetails, age,medicalRecordList));
+            persons.add(new PersonFireInfoDTO(personDetails, age, medicalRecordList));
         }
 
-        return new FloodAndFireDTO(persons, firestationNumber);
+        return new FireDTO(persons, firestationNumber);
+    }
+
+    @GetMapping("/flood")
+    public List<FloodDTO> getFloodInfo(@RequestParam List<String> stations) {
+
+        List<FloodDTO> result = new ArrayList<>();
+
+        for (String firestationNumber : stations) {
+
+            List<Object[]> firestationAdressServed = firestationService.getAddressByFireStationNumber(firestationNumber);
+
+
+            if (firestationAdressServed != null && !firestationAdressServed.isEmpty()) {
+
+                for (int i = 0; i < firestationAdressServed.size(); i++) {
+
+                    String address = firestationAdressServed.get(i)[0].toString();
+                    List<Object[]> personList = personService.getPersonByAddress(address);
+                    List<PersonFloodDTO> persons = new ArrayList<>();
+
+                    for (Object[] personData : personList) {
+                        String firstName = personData[0].toString();
+                        String lastName = personData[1].toString();
+                        String phone = personData[2].toString();
+
+                        List<Object[]> medicalRecordList = medicalRecordService.getMedicalRecordByCompleteName(firstName, lastName);
+                        int age = medicalRecordService.getAgeByCompleteName(firstName, lastName);
+
+                        persons.add(new PersonFloodDTO(firstName, lastName, medicalRecordList, age, phone));
+                    }
+                    result.add(new FloodDTO(address, persons));
+                }
+
+            }
+        }
+        return result;
     }
 }

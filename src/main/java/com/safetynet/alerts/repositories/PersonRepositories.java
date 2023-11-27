@@ -13,7 +13,7 @@ public interface PersonRepositories extends CrudRepository<Person, Long> {
     Long findIdByFirstNameAndLastName(@Param("firstName") String firstName, @Param("lastName") String lastName);
 
     @Query("SELECT p.firstName, p.lastName, p.address, p.email FROM Person p WHERE p.firstName = :firstName AND p.lastName = :lastName")
-    List<Object[]> findPersonInfoByCompleteName(@Param("firstName") String firstName,@Param("lastName") String lastName);
+    List<String> findPersonInfoByCompleteName(@Param("firstName") String firstName,@Param("lastName") String lastName);
 
     @Query("SELECT p.firstName, p.lastName, p.phone FROM Person p WHERE p.address = :address")
     List<Object[]> findByAddressForFire(@Param("address") String address);

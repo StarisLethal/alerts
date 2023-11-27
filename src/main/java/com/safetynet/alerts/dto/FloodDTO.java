@@ -7,10 +7,9 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class FloodAndFireDTO {
+public class FloodDTO {
 
-    private List<PersonFireInfoDTO> personList;
-    private List<Object[]> firestationNumber;
-
+    private String firestationAdressServed;
+    private List<PersonFloodDTO> personList;
 
 }

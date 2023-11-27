@@ -7,9 +7,9 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class FireDTO {
+public class ChildAlertDTO {
 
-    private List<PersonFireInfoDTO> personList;
-    private List<Object[]> firestationNumber;
+    List<FirstAndLastNameDTO> childInfo;
+    List<FirstAndLastNameDTO> familyMembers;
 
 }

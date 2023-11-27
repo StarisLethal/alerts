@@ -17,5 +17,11 @@ public interface PersonRepositories extends CrudRepository<Person, Long> {
 
     @Query("SELECT p.firstName, p.lastName, p.phone FROM Person p WHERE p.address = :address")
     List<Object[]> findByAddressForFire(@Param("address") String address);
+
+    @Query("SELECT p.phone FROM Person p WHERE p.address = :address")
+    List<Object[]> findByAddressForPhoneAlert(@Param("address") String address);
+
+    @Query("SELECT p.firstName, p.lastName,p.address, p.phone FROM Person p WHERE p.address = :address")
+    List<Object[]> findByAddressForFirestation(@Param("address") String address);
 }
 

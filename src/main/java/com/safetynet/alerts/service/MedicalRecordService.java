@@ -49,5 +49,14 @@ public class MedicalRecordService {
         return age;
     }
 
+    public boolean childOrNot(String firstName, String lastName){
+        int age = getAgeByCompleteName(firstName, lastName);
+
+        if (age <= 18){
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
 

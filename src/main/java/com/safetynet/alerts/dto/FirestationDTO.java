@@ -7,9 +7,8 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class PersonAndMedicalDTO {
+public class FirestationDTO {
 
-    private List<Object[]> personDetails;
-    private List<Object[]> medicalRecords;
+    List<FirestationInfoDTO> personInfo;
 
 }

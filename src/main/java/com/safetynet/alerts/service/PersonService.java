@@ -56,4 +56,12 @@ public class PersonService {
     public  List<Object[]> getPersonByAddress (String address){
         return personRepositories.findByAddressForFire(address);
     }
+
+    public  List<Object[]> getPhoneByAddress (String address){
+        return personRepositories.findByAddressForPhoneAlert(address);
+    }
+
+    public List<Object[]> getPersonForFirestations (String address){
+        return  personRepositories.findByAddressForFirestation(address);
+    }
 }

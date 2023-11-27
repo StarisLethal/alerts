@@ -7,10 +7,8 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class AgeAndMedicalDTO {
+public class PhoneAlertDTO {
 
-    private int age;
-    private List<String> medications;
-    private List<String> allergies;
+    private String phoneNumber;
 
 }

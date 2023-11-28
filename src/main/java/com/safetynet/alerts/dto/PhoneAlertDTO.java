@@ -9,6 +9,6 @@ import java.util.List;
 @AllArgsConstructor
 public class PhoneAlertDTO {
 
-    private String phoneNumber;
+    private List<Object> phoneNumber;
 
 }

@@ -94,7 +94,7 @@ public class PersonInfoController {
 
     @GetMapping("/phoneAlert")
     public List<PhoneAlertDTO> getFloodInfoByFirestation(@RequestParam String firestation) {
-
+        List<Object> phoneList = new ArrayList<>();
         List<PhoneAlertDTO> result = new ArrayList<>();
         List<Object[]> firestationAdressServed = firestationService.getAddressByFireStationNumber(firestation);
 
@@ -108,19 +108,20 @@ public class PersonInfoController {
 
                 for (Object[] personData : personList) {
 
-                    String phone = personData[0].toString();
+                    Object phone = personData[0];
 
-                    result.add(new PhoneAlertDTO(phone));
+                    phoneList.add(phone);
                 }
             }
         }
-
+        result.add(new PhoneAlertDTO(phoneList));
         return result;
     }
 
     @GetMapping("/childAlert")
     public List<ChildAlertDTO> getChildInfoBy(@RequestParam String address) {
-
+        int numberOfChild = 0;
+        if (numberOfChild >0){
         List<ChildAlertDTO> result = new ArrayList<>();
 
         List<Object[]> personList = personService.getPersonByAddress(address);
@@ -136,13 +137,18 @@ public class PersonInfoController {
 
             if (child == true) {
                 childInfo.add(new FirstAndLastNameDTO(firstName, lastName));
+                numberOfChild++;
             } else {
                 otherFamilyMember.add(new FirstAndLastNameDTO(firstName, lastName));
             }
+
 //todo inclure le nombre d'enfant pour ne rien retourner si il n'y en a pas
         }
         result.add(new ChildAlertDTO(childInfo, otherFamilyMember));
         return result;
+    } else {
+            return null;
+        }
     }
 
     @GetMapping("/firestation")
@@ -150,24 +156,37 @@ public class PersonInfoController {
         List<FirestationDTO> result = new ArrayList<>();
         List<FirestationInfoDTO> personInfo = new ArrayList<>();
         List<Object[]> firestationAdressServed = firestationService.getAddressByFireStationNumber(stationNumber);
+        int numberOfAdult = 0;
+        int numberOfChild = 0;
 
         if (firestationAdressServed != null && !firestationAdressServed.isEmpty())
+
             for (int i = 0; i < firestationAdressServed.size(); i++) {
 
                 String address = firestationAdressServed.get(i)[0].toString();
-                List<Object[]>personList = personService.getPersonForFirestations(address);
+                List<Object[]> personList = personService.getPersonForFirestations(address);
+
                 for (Object[] personData : personList) {
 
                     String firstName = personData[0].toString();
                     String lastName = personData[1].toString();
                     String addressPerson = personData[2].toString();
                     String phone = personData[3].toString();
+                    boolean childOrNot = medicalRecordService.childOrNot(firstName, lastName);
 
-                    personInfo.add(new FirestationInfoDTO(firstName, lastName, addressPerson,phone));
+                    if (childOrNot) {
+                        numberOfChild++;
+                    } else {
+                        numberOfAdult++;
+                    }
+
+                    personInfo.add(new FirestationInfoDTO(firstName, lastName, addressPerson, phone));
+
 //ToDO décompte nombre d'adulte
                 }
             }
-        result.add(new FirestationDTO(personInfo));
+
+        result.add(new FirestationDTO(personInfo, numberOfAdult, numberOfChild));
         return result;
     }
 }

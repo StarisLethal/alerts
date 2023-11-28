@@ -9,6 +9,8 @@ import java.util.List;
 @AllArgsConstructor
 public class FirestationDTO {
 
-    List<FirestationInfoDTO> personInfo;
+    private List<FirestationInfoDTO> personInfo;
+    private int numberOfAdult;
+    private int numberOfChild;
 
 }

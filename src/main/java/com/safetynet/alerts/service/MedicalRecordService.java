@@ -2,6 +2,7 @@ package com.safetynet.alerts.service;
 
 import com.safetynet.alerts.model.MedicalRecord;
 import com.safetynet.alerts.repositories.MedicalRecordRepositories;
+import lombok.Data;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -9,7 +10,7 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-
+@Data
 @Service
 public class MedicalRecordService {
     private MedicalRecordRepositories medicalRecordRepositories;
@@ -41,7 +42,7 @@ public class MedicalRecordService {
     public int getAgeByCompleteName(String firstName, String lastName) {
 
         String birthday = medicalRecordRepositories.findBirthDayByCompleteName(firstName, lastName).toString();
-        System.out.println(birthday);
+
         LocalDate birthdate = LocalDate.parse(birthday, DateTimeFormatter.ofPattern("MM/dd/yyyy"));
         LocalDate currentDate = LocalDate.now();
         int age = Period.between(birthdate, currentDate).getYears();

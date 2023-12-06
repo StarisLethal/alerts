@@ -77,7 +77,7 @@ Gson gson = new Gson();
                 }
             }
         }
-        if (personRepositories.existsById(1L)) {
+        if (personRepositories.count() > 0 || firestationRepositories.count() > 0 || medicalRecordRepositories.count() > 0) {
             System.out.println("base de donnée déja remplis");
         }   else{
             personRepositories.saveAll(persons);

@@ -8,14 +8,18 @@ import com.safetynet.alerts.service.MedicalRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.function.EntityResponse;
 
 import javax.swing.text.html.parser.Entity;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/medicalrecord")
+@Controller
+//@RequestMapping("/medicalrecord")
 public class MedicalRecordController {
 
     @Autowired
@@ -49,11 +53,22 @@ public class MedicalRecordController {
 
         updatedMedicalRecord.setBirthdate(medicalRecord.getBirthdate());
         updatedMedicalRecord.setMedications(medicalRecord.getMedications());
-        updatedMedicalRecord.setMedications(medicalRecord.getMedications());
+        updatedMedicalRecord.setAllergies(medicalRecord.getAllergies());
 
         medicalRecordService.save(updatedMedicalRecord);
 
-        return ResponseEntity.ok(medicalRecord);
+        return ResponseEntity.ok(updatedMedicalRecord);
+    }
+
+    @DeleteMapping("/medicalRecord")
+    public Map<String,Boolean> deleteMedicalRecord (@RequestParam String firstName, @RequestParam String lastName){
+
+        Long idDeletedMedicalRecord = medicalRecordRepositories.findIdByFirstNameAndLastName(firstName, lastName);
+
+        medicalRecordRepositories.deleteById(idDeletedMedicalRecord);
+        Map<String,Boolean> response = new HashMap<>();
+        response.put("deleted", Boolean.TRUE);
+        return response;
     }
 
 

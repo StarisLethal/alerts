@@ -15,4 +15,6 @@ public interface MedicalRecordRepositories extends CrudRepository<MedicalRecord,
     @Query("SELECT m.birthdate FROM MedicalRecord m WHERE m.firstName = :firstName AND m.lastName = :lastName")
     String findBirthDayByCompleteName(@Param("firstName") String firstName, @Param("lastName") String lastName);
 
+    @Query("SELECT m.id FROM MedicalRecord m  WHERE m.firstName = :firstName AND m.lastName = :lastName")
+    Long findIdByFirstNameAndLastName(@Param("firstName") String firstName, @Param("lastName") String lastName);
 }

@@ -9,13 +9,16 @@ import com.safetynet.alerts.service.FirestationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/firestation")
+@Controller
+//@RequestMapping("/firestation")
 public class FirestationController {
 
     @Autowired
@@ -30,6 +33,11 @@ public class FirestationController {
     @GetMapping("/firestations")
     public Iterable<Firestation> list() {
         return firestationService.list();
+    }
+
+    @GetMapping("/firestation/{id}")
+    public Optional<Firestation> getFirestation(@PathVariable("id") final Long id){
+        return firestationService.get(id);
     }
 
     @PostMapping("/firestation")
@@ -51,12 +59,25 @@ public class FirestationController {
 
         return ResponseEntity.ok(firestationDetail);
     }
-    @DeleteMapping("/firestation/{id}")
-    public Map<String, Boolean> deleteFirestation(@PathVariable long id) throws ResourceNotFoundException{
-        Firestation deletedFirestation = firestationRepositories.findById(id).orElseThrow(() -> new ResourceNotFoundException("Firestation not exist with id: " + id));
 
-        firestationRepositories.delete(deletedFirestation);
-        Map<String, Boolean> response = new HashMap<>();
+    @DeleteMapping("/deleteFirestationByAddress")
+    public Map<String,Boolean> deleteFirestationByAddress (@RequestParam(name = "address") String address){
+
+        Long idDeletedFirestation = firestationRepositories.deleteByAddress(address);
+
+        firestationRepositories.deleteById(idDeletedFirestation);
+        Map<String,Boolean> response = new HashMap<>();
+        response.put("deleted", Boolean.TRUE);
+        return response;
+    }
+
+    @DeleteMapping("/deleteFirestationByStation")
+    public Map<String,Boolean> deleteFirestationByStation (@RequestParam(name = "station") String station){
+
+        Long idDeletedFirestation = firestationRepositories.deleteByAddress(station);
+
+        firestationRepositories.deleteById(idDeletedFirestation);
+        Map<String,Boolean> response = new HashMap<>();
         response.put("deleted", Boolean.TRUE);
         return response;
     }

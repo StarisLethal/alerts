@@ -15,4 +15,11 @@ public interface FirestationRepositories extends CrudRepository<Firestation, Lon
     @Query("SELECT f.address FROM Firestation f WHERE f.station = :station")
     List<Object[]> findByFireStationNumber(@Param("station") String station);
 
+    @Query("SELECT f.id FROM Firestation f WHERE f.address = :address")
+    Long deleteByAddress(@Param("address") String address);
+
+    @Query("SELECT f.id FROM Firestation f WHERE f.station = :station")
+    Long deleteByStation(@Param("station") String station);
+
+
 }

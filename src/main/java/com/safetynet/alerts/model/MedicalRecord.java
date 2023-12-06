@@ -1,7 +1,6 @@
 package com.safetynet.alerts.model;
 
 
-import com.fasterxml.jackson.annotation.JsonFilter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,7 +14,6 @@ public class MedicalRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @JsonFilter("birthdayfilter")
 
     private Long id;
     private String firstName;
@@ -30,4 +28,7 @@ public class MedicalRecord {
 
     private List<String> allergies;
 
+    public MedicalRecord() {
+
+    }
 }

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -120,11 +121,9 @@ public class PersonInfoController {
 
     @GetMapping("/childAlert")
     public List<ChildAlertDTO> getChildInfoBy(@RequestParam String address) {
-        int numberOfChild = 0;
-        if (numberOfChild >0){
-        List<ChildAlertDTO> result = new ArrayList<>();
-
         List<Object[]> personList = personService.getPersonByAddress(address);
+        if (!personList.isEmpty()){
+        List<ChildAlertDTO> result = new ArrayList<>();
 
         List<FirstAndLastNameDTO> childInfo = new ArrayList<>();
         List<FirstAndLastNameDTO> otherFamilyMember = new ArrayList<>();
@@ -137,17 +136,14 @@ public class PersonInfoController {
 
             if (child == true) {
                 childInfo.add(new FirstAndLastNameDTO(firstName, lastName));
-                numberOfChild++;
             } else {
                 otherFamilyMember.add(new FirstAndLastNameDTO(firstName, lastName));
             }
-
-//todo inclure le nombre d'enfant pour ne rien retourner si il n'y en a pas
         }
         result.add(new ChildAlertDTO(childInfo, otherFamilyMember));
         return result;
     } else {
-            return null;
+            return Collections.emptyList();
         }
     }
 
@@ -182,7 +178,6 @@ public class PersonInfoController {
 
                     personInfo.add(new FirestationInfoDTO(firstName, lastName, addressPerson, phone));
 
-//ToDO décompte nombre d'adulte
                 }
             }
 

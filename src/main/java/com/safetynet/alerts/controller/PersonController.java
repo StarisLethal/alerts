@@ -67,7 +67,7 @@ public class PersonController {
         return ResponseEntity.ok(personDetails);
     }
 
-    @DeleteMapping("/person{firstName}{lastName}")
+    @DeleteMapping("/person")
     public Map<String,Boolean> deletePerson (@RequestParam String firstName, @RequestParam String lastName){
 
         Long idDeletedPerson = personRepositories.findIdByFirstNameAndLastName(firstName, lastName);

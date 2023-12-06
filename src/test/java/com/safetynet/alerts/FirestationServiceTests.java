@@ -1,7 +1,8 @@
-package com.safetynet.alerts.service;
+package com.safetynet.alerts;
 
 import com.safetynet.alerts.model.Firestation;
 import com.safetynet.alerts.repositories.FirestationRepositories;
+import com.safetynet.alerts.service.FirestationService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

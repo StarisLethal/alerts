@@ -41,7 +41,7 @@ public class MedicalRecordService {
 
     public int getAgeByCompleteName(String firstName, String lastName) {
 
-        String birthday = medicalRecordRepositories.findBirthDayByCompleteName(firstName, lastName).toString();
+        String birthday = medicalRecordRepositories.findBirthDayByCompleteName(firstName, lastName);
 
         LocalDate birthdate = LocalDate.parse(birthday, DateTimeFormatter.ofPattern("MM/dd/yyyy"));
         LocalDate currentDate = LocalDate.now();

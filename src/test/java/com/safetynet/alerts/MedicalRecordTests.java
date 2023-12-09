@@ -14,9 +14,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -126,5 +126,20 @@ public class MedicalRecordTests {
         int expectedAge = fakeCurrentDate.getYear() - LocalDate.parse(birthday, DateTimeFormatter.ofPattern("MM/dd/yyyy")).getYear();
 
         assertEquals(expectedAge, result);
+    }
+
+    @Test
+    void testChildOrNot(){
+        String birthdate = "09/06/2017";
+        String birthdateAdult = "02/28/1928";
+
+        when(medicalRecordRepositories.findBirthDayByCompleteName("Marneus", "Calgar")).thenReturn(birthdate);
+        when(medicalRecordRepositories.findBirthDayByCompleteName("Sol", "Pyro")).thenReturn(birthdateAdult);
+
+        boolean test = medicalRecordService.childOrNot("Marneus", "Calgar");
+        assertTrue(test);
+
+        boolean test2 = medicalRecordService.childOrNot("Sol", "Pyro");
+        assertFalse(test2);
     }
 }

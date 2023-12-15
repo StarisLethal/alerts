@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Data
 @Service
@@ -25,23 +26,53 @@ public class FirestationService {
         return firestationRepositories.getFirestations();
     }
 
-    public List<Firestation> addFirestation(List<Firestation> firestation) {
-        firestationRepositories.setFirestations(firestation);
-        return firestation;
+    public List<Firestation> addFirestation(Firestation newFirestation) {
+        List<Firestation> fireStations = firestationRepositories.getFirestations();
+        List<Firestation> updatedFireStations = fireStations.stream()
+                .collect(Collectors.toList());
+
+        fireStations.add(newFirestation);
+
+        return fireStations;
     }
 
-    public List<Firestation> deleteFirestation(String station) {
+    public boolean editFirestationNumber(String currentAddress, String newStationNumber) {
         List<Firestation> firestations = firestationRepositories.getFirestations();
-        firestations.removeIf(firestation -> firestation.getStation().equals(station));
-        firestationRepositories.setFirestations(firestations);
-        return firestations;
+
+        Optional<Firestation> updatedStation = firestations.stream()
+                .filter(station -> station.getAddress().equals(currentAddress))
+                .findFirst();
+
+        if (updatedStation.isPresent()) {
+            updatedStation.get().setStation(newStationNumber);
+            return true;
+        }
+
+        return false;
+    }
+
+    public List<Firestation> deleteFirestationByStation(String firestationNumber) {
+        List<Firestation> fireStations = firestationRepositories.getFirestations();
+
+        List<Firestation> updatedFireStations = fireStations.stream()
+                .filter(f -> !f.getStation().equals(firestationNumber))
+                .collect(Collectors.toList());
+
+        firestationRepositories.setFirestations(updatedFireStations);
+
+        return updatedFireStations;
     }
 
     public List<Firestation> deleteFirestationByAddress(String address) {
-        List<Firestation> firestations = firestationRepositories.getFirestations();
-        firestations.removeIf(firestation -> firestation.getStation().equals(address));
-        firestationRepositories.setFirestations(firestations);
-        return firestations;
+        List<Firestation> fireStations = firestationRepositories.getFirestations();
+
+        List<Firestation> updatedFireStations = fireStations.stream()
+                .filter(f -> !f.getStation().equals(address))
+                .collect(Collectors.toList());
+
+        firestationRepositories.setFirestations(updatedFireStations);
+
+        return updatedFireStations;
     }
 
     public String getFireStationByAddress(String address){

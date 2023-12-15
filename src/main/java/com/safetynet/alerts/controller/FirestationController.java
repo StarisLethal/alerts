@@ -42,25 +42,9 @@ public class FirestationController {
             return null;
         }
     }
-
-/*    @GetMapping("/firestation/{id}")
-    public Optional<Firestation> getFirestation(@PathVariable("id") final Long id) {
-        try {
-            Optional<Firestation> firestation = firestationService.get(id);
-            if (firestation.isPresent()) {
-                logger.info("GET request to /firestation/" + id + " successful");
-            } else {
-                logger.info("GET request to /firestation/" + id + " returned no data");
-            }
-            return firestation;
-        } catch (Exception e) {
-            logger.error("Error processing GET request to /firestation/" + id, e);
-            return null;
-        }
-    }*/
-
+    
     @PostMapping("/firestation")
-    public ResponseEntity<List<Firestation>> createFirestation(@RequestBody List<Firestation> firestation) {
+    public ResponseEntity<List<Firestation>> createFirestation(@RequestBody Firestation firestation) {
         try {
             List<Firestation> createdFirestation = firestationService.addFirestation(firestation);
             logger.info("POST request from /firestation successful");
@@ -71,47 +55,38 @@ public class FirestationController {
         }
     }
 
-    /*@PutMapping("/firestation/{id}")
-    public ResponseEntity<Firestation> updateFirestation(@PathVariable String address, @RequestBody Firestation firestationDetail) {
+    @PutMapping("/firestation/{address}")
+    public ResponseEntity<Firestation> updateFirestation(@PathVariable String address, @RequestBody String station) {
         try {
 
-            updatedFirestation.setStation(firestationDetail.getStation());
+            firestationService.editFirestationNumber(address, station);
 
-            firestationRepositories.save(updatedFirestation);
-
-            logger.info("PUT request to /firestation/" + id + " successful");
-            return ResponseEntity.ok(firestationDetail);
+            logger.info("PUT request to /firestation/" + address + " successful");
+            return (ResponseEntity<Firestation>) ResponseEntity.ok();
         } catch (Exception e) {
-            logger.error("Error processing PUT request to /firestation/" + id, e);
-            return null;
-        }
-    }*/
-
-    @DeleteMapping("/deleteFirestationByAddress")
-    public Map<String, Boolean> deleteFirestationByAddress(@RequestParam(name = "address") String address) {
-        try {
-            firestationService.deleteFirestationByAddress(address);
-            logger.info("Delete request to /medicalRecord/" + address + " successful");
-            Map<String, Boolean> response = new HashMap<>();
-            response.put("deleted", Boolean.TRUE);
-            return response;
-
-        } catch (Exception e) {
-            logger.error("Error processing DELETE request to /medicalRecord/" + address, e);
+            logger.error("Error processing PUT request to /firestation/" + address, e);
             return null;
         }
     }
 
-    @DeleteMapping("/deleteFirestationByStation")
-    public Map<String, Boolean> deleteFirestationByStation(@RequestParam(name = "station") String station) {
+    @DeleteMapping("/firestation")
+    public Map<String, Boolean> deleteFirestation(
+            @RequestParam(name = "address", required = false) String address,
+            @RequestParam(name = "station", required = false) String station) {
         try {
-            firestationService.deleteFirestation(station);
-            logger.info("Delete request to /medicalRecord/" + station + " successful");
+            if (address != null) {
+                firestationService.deleteFirestationByAddress(address);
+            } else if (station != null) {
+                firestationService.deleteFirestationByStation(station);
+            } else {
+                return (Map<String, Boolean>) ResponseEntity.badRequest().build();
+            }
+
             Map<String, Boolean> response = new HashMap<>();
             response.put("deleted", Boolean.TRUE);
             return response;
         } catch (Exception e) {
-            logger.error("Error processing DELETE request to /medicalRecord/" + station, e);
+            logger.error("Error processing DELETE request to /firestation", e);
             return null;
         }
     }

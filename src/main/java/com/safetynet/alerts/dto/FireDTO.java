@@ -10,6 +10,6 @@ import java.util.List;
 public class FireDTO {
 
     private List<PersonFireInfoDTO> personList;
-    private List<Object[]> firestationNumber;
+    private String firestationNumber;
 
 }

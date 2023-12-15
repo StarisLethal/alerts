@@ -1,14 +1,21 @@
 package com.safetynet.alerts.repositories;
 
 import com.safetynet.alerts.model.Firestation;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface FirestationRepositories extends CrudRepository<Firestation, Long> {
+public class FirestationRepositories  {
 
+    @Getter
+    @Setter
+    private List<Firestation> firestations;
+
+    /*
     @Query("SELECT f.station FROM Firestation f WHERE f.address = :address")
     List<Object[]> findByAddressForFire(@Param("address") String address);
 
@@ -19,7 +26,7 @@ public interface FirestationRepositories extends CrudRepository<Firestation, Lon
     Long deleteByAddress(@Param("address") String address);
 
     @Query("SELECT f.id FROM Firestation f WHERE f.station = :station")
-    Long deleteByStation(@Param("station") String station);
+    Long deleteByStation(@Param("station") String station); */
 
 
 }

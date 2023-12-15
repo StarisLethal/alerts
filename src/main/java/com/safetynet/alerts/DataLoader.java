@@ -25,6 +25,9 @@ public class DataLoader implements CommandLineRunner {
     private final FirestationRepositories firestationRepositories;
     private final MedicalRecordRepositories medicalRecordRepositories;
 
+    private List<Person> persons;
+    private List<Firestation> firestations;
+    private List<MedicalRecord> medicalRecords;
 
     public DataLoader(PersonRepositories personRepositories, FirestationRepositories firestationRepositories, MedicalRecordRepositories medicalRecordRepositories) {
         this.personRepositories = personRepositories;
@@ -35,14 +38,14 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        List<Person> persons = new ArrayList<>();
-        List<Firestation> firestations = new ArrayList<>();
-        List<MedicalRecord> medicalRecords = new ArrayList<>();
+        this.persons = new ArrayList<>();
+        this.firestations = new ArrayList<>();
+        this.medicalRecords = new ArrayList<>();
 
 
 Gson gson = new Gson();
 
-        try (FileReader fileReader = new FileReader("C:\\Users\\letha\\IdeaProjects\\alerts\\src\\main\\resources\\json\\data.json")) {
+        try (FileReader fileReader = new FileReader("C:\\Users\\Dewara\\Desktop\\data.json")) {
             JsonElement jsonElement = gson.fromJson(fileReader, JsonElement.class);
 
             if (jsonElement.isJsonObject()) {
@@ -77,12 +80,16 @@ Gson gson = new Gson();
                 }
             }
         }
-        if (personRepositories.count() > 0 || firestationRepositories.count() > 0 || medicalRecordRepositories.count() > 0) {
-            System.out.println("base de donnée déja remplis");
+        if (personRepositories.count() > 0 || firestations.size() > 0 || medicalRecordRepositories.count() > 0) {
+           // System.out.println("base de donnée déja remplis");
         }   else{
             personRepositories.saveAll(persons);
-            firestationRepositories.saveAll(firestations);
             medicalRecordRepositories.saveAll(medicalRecords);
+
+            //firestationRepositories.saveAll(firestations);
+            firestationRepositories.setFirestations(this.firestations);
+
+
         }
 
 

@@ -22,31 +22,38 @@ public class FirestationService {
     }
 
     public Iterable<Firestation> list(){
-        return firestationRepositories.findAll();
-    }
-
-    public Optional<Firestation> get(Long id) {
-        return firestationRepositories.findById(id);
-    }
-
-    public Firestation save(Firestation firestation){
-        return firestationRepositories.save(firestation);
-    }
-
-    public Iterable<Firestation> save(List<Firestation> firestations) {
-        return firestationRepositories.saveAll(firestations);
+        return firestationRepositories.getFirestations();
     }
 
 
+    public String getFireStationByAddress(String address){
 
-    public List<Object[]> getFireStationByAddress(String address){
+       // return firestationRepositories.findByAddressForFire(address);
 
-        return firestationRepositories.findByAddressForFire(address);
+        List<Firestation> fireStations = firestationRepositories.getFirestations();
+        String stationFromAddress = fireStations.stream()
+                .filter(f -> f.getAddress().equalsIgnoreCase(address))
+                .map(Firestation::getStation)
+                .findAny()
+                .orElse(null);
+
+        return stationFromAddress;
+
+
+
     }
 
-    public List<Object[]> getAddressByFireStationNumber(String firestationNumber){
+    public List<String> getAddressByFireStationNumber(String firestationNumber){
 
-        return firestationRepositories.findByFireStationNumber(firestationNumber);
+        //return firestationRepositories.findByFireStationNumber(firestationNumber);
+
+        List<Firestation> fireStations = firestationRepositories.getFirestations();
+        List<String> addressFromStation = fireStations.stream()
+                .filter(f -> f.getStation().equals(firestationNumber))
+                .map(Firestation::getAddress)
+                .distinct()
+                .toList();
+        return addressFromStation;
 
     }
 }

@@ -48,7 +48,7 @@ public class PersonInfoController {
     public FireDTO getFireInfo(@RequestParam String address) {
         try {
             List<Object[]> personList = personService.getPersonByAddress(address);
-            List<Object[]> firestationNumber = firestationService.getFireStationByAddress(address);
+            String firestationNumber = firestationService.getFireStationByAddress(address);
             List<PersonFireInfoDTO> persons = new ArrayList<>();
 
             for (Object[] personData : personList) {
@@ -77,14 +77,14 @@ public class PersonInfoController {
 
             for (String firestationNumber : stations) {
 
-                List<Object[]> firestationAdressServed = firestationService.getAddressByFireStationNumber(firestationNumber);
+                List<String> firestationAdressServed = firestationService.getAddressByFireStationNumber(firestationNumber);
 
 
                 if (firestationAdressServed != null && !firestationAdressServed.isEmpty()) {
 
                     for (int i = 0; i < firestationAdressServed.size(); i++) {
 
-                        String address = firestationAdressServed.get(i)[0].toString();
+                        String address = firestationAdressServed.get(i).toString();
                         List<Object[]> personList = personService.getPersonByAddress(address);
                         List<PersonFloodDTO> persons = new ArrayList<>();
 
@@ -116,13 +116,13 @@ public class PersonInfoController {
         try {
             List<Object> phoneList = new ArrayList<>();
             List<PhoneAlertDTO> result = new ArrayList<>();
-            List<Object[]> firestationAdressServed = firestationService.getAddressByFireStationNumber(firestation);
+            List<String> firestationAdressServed = firestationService.getAddressByFireStationNumber(firestation);
 
             if (firestationAdressServed != null && !firestationAdressServed.isEmpty()) {
 
                 for (int i = 0; i < firestationAdressServed.size(); i++) {
 
-                    String address = firestationAdressServed.get(i)[0].toString();
+                    String address = firestationAdressServed.get(i).toString();
                     List<Object[]> personList = personService.getPhoneByAddress(address);
 
 
@@ -184,7 +184,7 @@ public class PersonInfoController {
         try {
             List<FirestationDTO> result = new ArrayList<>();
             List<FirestationInfoDTO> personInfo = new ArrayList<>();
-            List<Object[]> firestationAdressServed = firestationService.getAddressByFireStationNumber(stationNumber);
+            List<String> firestationAdressServed = firestationService.getAddressByFireStationNumber(stationNumber);
             int numberOfAdult = 0;
             int numberOfChild = 0;
 
@@ -192,7 +192,7 @@ public class PersonInfoController {
 
                 for (int i = 0; i < firestationAdressServed.size(); i++) {
 
-                    String address = firestationAdressServed.get(i)[0].toString();
+                    String address = firestationAdressServed.get(i).toString();
                     List<Object[]> personList = personService.getPersonForFirestations(address);
 
                     for (Object[] personData : personList) {

@@ -45,7 +45,7 @@ public class DataLoader implements CommandLineRunner {
 
 Gson gson = new Gson();
 
-        try (FileReader fileReader = new FileReader("C:\\Users\\Dewara\\Desktop\\data.json")) {
+        try (FileReader fileReader = new FileReader("C:\\Users\\letha\\IdeaProjects\\alerts\\src\\main\\resources\\json\\data.json")) {
             JsonElement jsonElement = gson.fromJson(fileReader, JsonElement.class);
 
             if (jsonElement.isJsonObject()) {
@@ -80,13 +80,13 @@ Gson gson = new Gson();
                 }
             }
         }
-        if (personRepositories.count() > 0 || firestations.size() > 0 || medicalRecordRepositories.count() > 0) {
+/*        if (personRepositories.count() > 0 || firestations.size() > 0 || medicalRecordRepositories.count() > 0) {
            // System.out.println("base de donnée déja remplis");
         }   else{
-            personRepositories.saveAll(persons);
-            medicalRecordRepositories.saveAll(medicalRecords);
+*//*            personRepositories.saveAll(persons);
+            medicalRecordRepositories.saveAll(medicalRecords);*//*
 
-            //firestationRepositories.saveAll(firestations);
+            //firestationRepositories.saveAll(firestations);*/
             firestationRepositories.setFirestations(this.firestations);
 
 
@@ -94,4 +94,4 @@ Gson gson = new Gson();
 
 
     }
-}
+

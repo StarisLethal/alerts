@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -38,11 +39,11 @@ public class FirestationController {
             return firestationService.list();
         } catch (Exception e) {
             logger.error("Error processing GET request to /firestations", e);
-            throw e;
+            return null;
         }
     }
 
-    @GetMapping("/firestation/{id}")
+/*    @GetMapping("/firestation/{id}")
     public Optional<Firestation> getFirestation(@PathVariable("id") final Long id) {
         try {
             Optional<Firestation> firestation = firestationService.get(id);
@@ -54,26 +55,25 @@ public class FirestationController {
             return firestation;
         } catch (Exception e) {
             logger.error("Error processing GET request to /firestation/" + id, e);
-            throw e;
+            return null;
         }
-    }
+    }*/
 
     @PostMapping("/firestation")
-    public ResponseEntity<Firestation> createFirestation(@RequestBody Firestation firestation) {
+    public ResponseEntity<List<Firestation>> createFirestation(@RequestBody List<Firestation> firestation) {
         try {
-            Firestation createdFirestation = firestationService.save(firestation);
+            List<Firestation> createdFirestation = firestationService.addFirestation(firestation);
             logger.info("POST request from /firestation successful");
             return new ResponseEntity<>(createdFirestation, HttpStatus.CREATED);
         } catch (Exception e) {
             logger.error("Error processing POST request to /firestation", e);
-            throw e;
+            return null;
         }
     }
 
-    @PutMapping("/firestation/{id}")
-    public ResponseEntity<Firestation> updateFirestation(@PathVariable long id, @RequestBody Firestation firestationDetail) {
+    /*@PutMapping("/firestation/{id}")
+    public ResponseEntity<Firestation> updateFirestation(@PathVariable String address, @RequestBody Firestation firestationDetail) {
         try {
-            Firestation updatedFirestation = firestationRepositories.findById(id).orElseThrow(() -> new ResourceNotFoundException("Firestation not exist with id: " + id));
 
             updatedFirestation.setStation(firestationDetail.getStation());
 
@@ -83,16 +83,14 @@ public class FirestationController {
             return ResponseEntity.ok(firestationDetail);
         } catch (Exception e) {
             logger.error("Error processing PUT request to /firestation/" + id, e);
-            throw e;
+            return null;
         }
-    }
+    }*/
 
     @DeleteMapping("/deleteFirestationByAddress")
     public Map<String, Boolean> deleteFirestationByAddress(@RequestParam(name = "address") String address) {
         try {
-            Long idDeletedFirestation = firestationRepositories.deleteByAddress(address);
-
-            firestationRepositories.deleteById(idDeletedFirestation);
+            firestationService.deleteFirestationByAddress(address);
             logger.info("Delete request to /medicalRecord/" + address + " successful");
             Map<String, Boolean> response = new HashMap<>();
             response.put("deleted", Boolean.TRUE);
@@ -100,23 +98,21 @@ public class FirestationController {
 
         } catch (Exception e) {
             logger.error("Error processing DELETE request to /medicalRecord/" + address, e);
-            throw e;
+            return null;
         }
     }
 
     @DeleteMapping("/deleteFirestationByStation")
     public Map<String, Boolean> deleteFirestationByStation(@RequestParam(name = "station") String station) {
         try {
-            Long idDeletedFirestation = firestationRepositories.deleteByAddress(station);
-
-            firestationRepositories.deleteById(idDeletedFirestation);
+            firestationService.deleteFirestation(station);
             logger.info("Delete request to /medicalRecord/" + station + " successful");
             Map<String, Boolean> response = new HashMap<>();
             response.put("deleted", Boolean.TRUE);
             return response;
         } catch (Exception e) {
             logger.error("Error processing DELETE request to /medicalRecord/" + station, e);
-            throw e;
+            return null;
         }
     }
 }

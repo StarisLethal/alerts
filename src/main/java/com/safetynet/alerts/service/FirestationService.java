@@ -14,7 +14,7 @@ import java.util.Optional;
 @Service
 public class FirestationService {
 
-    @Autowired
+
     private FirestationRepositories firestationRepositories;
 
     public FirestationService(FirestationRepositories firestationRepositories) {
@@ -25,11 +25,26 @@ public class FirestationService {
         return firestationRepositories.getFirestations();
     }
 
+    public List<Firestation> addFirestation(List<Firestation> firestation) {
+        firestationRepositories.setFirestations(firestation);
+        return firestation;
+    }
+
+    public List<Firestation> deleteFirestation(String station) {
+        List<Firestation> firestations = firestationRepositories.getFirestations();
+        firestations.removeIf(firestation -> firestation.getStation().equals(station));
+        firestationRepositories.setFirestations(firestations);
+        return firestations;
+    }
+
+    public List<Firestation> deleteFirestationByAddress(String address) {
+        List<Firestation> firestations = firestationRepositories.getFirestations();
+        firestations.removeIf(firestation -> firestation.getStation().equals(address));
+        firestationRepositories.setFirestations(firestations);
+        return firestations;
+    }
 
     public String getFireStationByAddress(String address){
-
-       // return firestationRepositories.findByAddressForFire(address);
-
         List<Firestation> fireStations = firestationRepositories.getFirestations();
         String stationFromAddress = fireStations.stream()
                 .filter(f -> f.getAddress().equalsIgnoreCase(address))
@@ -38,22 +53,16 @@ public class FirestationService {
                 .orElse(null);
 
         return stationFromAddress;
-
-
-
     }
 
     public List<String> getAddressByFireStationNumber(String firestationNumber){
-
-        //return firestationRepositories.findByFireStationNumber(firestationNumber);
-
         List<Firestation> fireStations = firestationRepositories.getFirestations();
         List<String> addressFromStation = fireStations.stream()
                 .filter(f -> f.getStation().equals(firestationNumber))
                 .map(Firestation::getAddress)
                 .distinct()
                 .toList();
-        return addressFromStation;
 
+        return addressFromStation;
     }
 }

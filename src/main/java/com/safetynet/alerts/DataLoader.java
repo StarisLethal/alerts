@@ -88,7 +88,8 @@ Gson gson = new Gson();
 
             //firestationRepositories.saveAll(firestations);*/
             firestationRepositories.setFirestations(this.firestations);
-
+            personRepositories.setPersons(this.persons);
+            medicalRecordRepositories.setMedicalRecords(this.medicalRecords);
 
         }
 

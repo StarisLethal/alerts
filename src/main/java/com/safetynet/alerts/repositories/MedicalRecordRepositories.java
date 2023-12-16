@@ -1,20 +1,20 @@
 package com.safetynet.alerts.repositories;
 
+import com.safetynet.alerts.model.Firestation;
 import com.safetynet.alerts.model.MedicalRecord;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-public interface MedicalRecordRepositories extends CrudRepository<MedicalRecord, Long> {
+@Repository
+public class MedicalRecordRepositories{
 
-    @Query("SELECT m.medications, m.allergies FROM MedicalRecord m WHERE m.firstName = :firstName AND m.lastName = :lastName")
-    List<Object[]> findMedicalRecordByCompleteName(@Param("firstName") String firstName, @Param("lastName") String lastName);
-
-    @Query("SELECT m.birthdate FROM MedicalRecord m WHERE m.firstName = :firstName AND m.lastName = :lastName")
-    String findBirthDayByCompleteName(@Param("firstName") String firstName, @Param("lastName") String lastName);
-
-    @Query("SELECT m.id FROM MedicalRecord m  WHERE m.firstName = :firstName AND m.lastName = :lastName")
-    Long findIdByFirstNameAndLastName(@Param("firstName") String firstName, @Param("lastName") String lastName);
+    @Getter
+    @Setter
+    List<MedicalRecord> medicalRecords;
 }

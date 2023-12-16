@@ -1,5 +1,6 @@
 package com.safetynet.alerts.dto;
 
+import com.safetynet.alerts.model.MedicalRecord;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

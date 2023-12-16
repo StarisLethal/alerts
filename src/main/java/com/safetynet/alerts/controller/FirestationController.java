@@ -42,7 +42,7 @@ public class FirestationController {
             return null;
         }
     }
-    
+
     @PostMapping("/firestation")
     public ResponseEntity<List<Firestation>> createFirestation(@RequestBody Firestation firestation) {
         try {

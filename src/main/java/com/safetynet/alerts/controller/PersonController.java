@@ -27,7 +27,6 @@ public class PersonController {
     @Autowired
     private PersonService personService;
 
-    @Autowired
     private PersonRepositories personRepositories;
 
 
@@ -42,72 +41,51 @@ public class PersonController {
             return personService.list();
         } catch (Exception e) {
             logger.error("Error processing GET request to /persons", e);
-            throw e;
-        }
-    }
-
-    @GetMapping("/person/{id}")
-    public Optional<Person> getPerson(@PathVariable("id") final Long id) {
-        try {
-            Optional<Person> person = personService.get(id);
-            if (person.isPresent()) {
-                logger.info("GET request to /person/" + id + " successful");
-            } else {
-                logger.info("GET request to /person/" + id + " returned no data");
-            }
-            return person;
-        } catch (Exception e) {
-            logger.error("Error processing GET request to /person/" + id, e);
-            throw e;
+            return null;
         }
     }
 
     @PostMapping("/person")
-    public ResponseEntity<Person> createPerson(@RequestBody Person person) {
+    public ResponseEntity<List<Person>> createPerson(@RequestBody Person person) {
         try {
-            Person createdPerson = personService.save(person);
+            List<Person> createdPerson = personService.addPerson(person);
             logger.info("POST request from /person successful");
             return new ResponseEntity<>(createdPerson, HttpStatus.CREATED);
         } catch (Exception e) {
             logger.error("Error processing POST request to /person", e);
-            throw e;
+            return null;
         }
     }
 
-    @PutMapping("/person/{id}")
-    public ResponseEntity<Person> updatePerson(@PathVariable long id, @RequestBody Person personDetails) {
+    @PutMapping("/person")
+    public ResponseEntity<Person> updatePerson(@PathVariable String firstName, @PathVariable String lastName, @RequestBody Person personDetails) {
         try {
-            Person updatedPerson = personRepositories.findById(id).orElseThrow(() -> new ResourceNotFoundException("Person not exist with id: " + id));
+            boolean successfulRequest = personService.editPerson(firstName, lastName, personDetails);
 
-            updatedPerson.setAddress(personDetails.getAddress());
-            updatedPerson.setCity(personDetails.getCity());
-            updatedPerson.setZip(personDetails.getZip());
-            updatedPerson.setPhone(personDetails.getPhone());
-            updatedPerson.setEmail(personDetails.getEmail());
+            if (successfulRequest) {
+                return new ResponseEntity<>(HttpStatus.OK);}
 
-            personRepositories.save(updatedPerson);
-
-            logger.info("PUT request to /person/" + id + " successful");
+            logger.info("PUT request to /person/" + firstName + " " + lastName + " successful");
             return ResponseEntity.ok(personDetails);
         } catch (Exception e) {
-            logger.error("Error processing PUT request to /person/" + id, e);
-            throw e;
+            logger.error("Error processing PUT request to /person/" + firstName + " " + lastName, e);
+            return null;
         }
     }
 
     @DeleteMapping("/person")
     public Map<String, Boolean> deletePerson(@RequestParam String firstName, @RequestParam String lastName) {
         try {
-            Long idDeletedPerson = personRepositories.findIdByFirstNameAndLastName(firstName, lastName);
 
-            personRepositories.deleteById(idDeletedPerson);
+            personService.deletePersonByName(firstName, lastName);
+
             logger.info("Delete request to /person/" + firstName + " " + lastName + " successful");
             Map<String, Boolean> response = new HashMap<>();
             response.put("deleted", Boolean.TRUE);
             return response;
         } catch (Exception e) {
             logger.error("Error processing DELETE request to /person/" + firstName + " " + lastName, e);
-            throw e;
+            return null;
         }
     }
 
@@ -123,7 +101,7 @@ public class PersonController {
             return communityEmail;
         } catch (Exception e) {
             logger.error("Error processing GET request to /communityEmail", e);
-            throw e;
+            return null;
         }
     }
 }

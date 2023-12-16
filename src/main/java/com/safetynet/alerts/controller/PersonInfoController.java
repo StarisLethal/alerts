@@ -1,6 +1,8 @@
 package com.safetynet.alerts.controller;
 
 import com.safetynet.alerts.dto.*;
+import com.safetynet.alerts.model.MedicalRecord;
+import com.safetynet.alerts.model.Person;
 import com.safetynet.alerts.service.FirestationService;
 import com.safetynet.alerts.service.MedicalRecordService;
 import com.safetynet.alerts.service.PersonService;
@@ -32,7 +34,7 @@ public class PersonInfoController {
     @GetMapping("/personInfo")
     public PersonFireInfoDTO getAddressInfo(@RequestParam String firstName, @RequestParam String lastName) {
         try {
-            List<String> personList = personService.getPersonByCompleteName(firstName, lastName);
+            List<Object[]> personList = personService.getPersonByCompleteName(firstName, lastName);
             int age = medicalRecordService.getAgeByCompleteName(firstName, lastName);
             List<Object[]> medicalRecordList = medicalRecordService.getMedicalRecordByCompleteName(firstName, lastName);
 
@@ -47,20 +49,20 @@ public class PersonInfoController {
     @GetMapping("/fire")
     public FireDTO getFireInfo(@RequestParam String address) {
         try {
-            List<Object[]> personList = personService.getPersonByAddress(address);
+            List<Object[]> personList = personService.getFLPByAddress(address);
             String firestationNumber = firestationService.getFireStationByAddress(address);
             List<PersonFireInfoDTO> persons = new ArrayList<>();
 
-            for (Object[] personData : personList) {
+
+            for ( Object[] personData : personList) {
                 String firstName = personData[0].toString();
                 String lastName = personData[1].toString();
                 String phone = personData[2].toString();
 
                 List<Object[]> medicalRecordList = medicalRecordService.getMedicalRecordByCompleteName(firstName, lastName);
                 int age = medicalRecordService.getAgeByCompleteName(firstName, lastName);
-                List<String> personDetails = Arrays.asList(firstName, lastName, phone);
 
-                persons.add(new PersonFireInfoDTO(personDetails, age, medicalRecordList));
+                persons.add(new PersonFireInfoDTO(Collections.singletonList(personData), age, medicalRecordList));
             }
             logger.info("Request GET received for /fire with parameters: address="+address+" successful");
             return new FireDTO(persons, firestationNumber);
@@ -85,7 +87,7 @@ public class PersonInfoController {
                     for (int i = 0; i < firestationAdressServed.size(); i++) {
 
                         String address = firestationAdressServed.get(i).toString();
-                        List<Object[]> personList = personService.getPersonByAddress(address);
+                        List<Object[]> personList = personService.getFLPByAddress(address);
                         List<PersonFloodDTO> persons = new ArrayList<>();
 
                         for (Object[] personData : personList) {

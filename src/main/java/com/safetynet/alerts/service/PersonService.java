@@ -25,11 +25,10 @@ public class PersonService {
         return personRepositories.getPersons();
     }
 
-
     public List<Person> addPerson(Person newPerson) {
         List<Person> person = personRepositories.getPersons();
         List<Person> updatedPerson = person.stream()
-                .collect(Collectors.toList());
+                .toList();
 
         person.add(newPerson);
 

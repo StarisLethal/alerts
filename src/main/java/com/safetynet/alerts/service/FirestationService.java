@@ -1,10 +1,8 @@
 package com.safetynet.alerts.service;
 
 import com.safetynet.alerts.model.Firestation;
-import com.safetynet.alerts.model.Person;
 import com.safetynet.alerts.repositories.FirestationRepositories;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,7 +34,7 @@ public class FirestationService {
         return fireStations;
     }
 
-    public boolean editFirestationNumber(String currentAddress, String newStationNumber) {
+    public Optional<Firestation> editFirestationNumber(String currentAddress, String newStationNumber) {
         List<Firestation> firestations = firestationRepositories.getFirestations();
 
         Optional<Firestation> updatedStation = firestations.stream()
@@ -45,10 +43,10 @@ public class FirestationService {
 
         if (updatedStation.isPresent()) {
             updatedStation.get().setStation(newStationNumber);
-            return true;
+            return updatedStation;
         }
 
-        return false;
+        return Optional.empty();
     }
 
     public List<Firestation> deleteFirestationByStation(String firestationNumber) {
@@ -67,7 +65,7 @@ public class FirestationService {
         List<Firestation> fireStations = firestationRepositories.getFirestations();
 
         List<Firestation> updatedFireStations = fireStations.stream()
-                .filter(f -> !f.getStation().equals(address))
+                .filter(f -> !f.getAddress().equals(address))
                 .collect(Collectors.toList());
 
         firestationRepositories.setFirestations(updatedFireStations);

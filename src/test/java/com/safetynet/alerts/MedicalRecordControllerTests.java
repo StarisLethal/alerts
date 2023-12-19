@@ -10,13 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -27,6 +27,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class MedicalRecordControllerTests {
 
+    @Autowired
+    MedicalRecordController medicalRecordController;
     @MockBean
     MedicalRecordService medicalRecordService;
     @MockBean
@@ -39,14 +41,15 @@ public class MedicalRecordControllerTests {
 
     @Test
     public void testGetMedicalRecords() throws Exception {
-        List<MedicalRecord> listTestMedicalRecord = Arrays.asList(
-                new MedicalRecord(1L, "Test FirstName1", "Test LastName1", "11/11/1111", Arrays.asList("Medication Test1", "Medication Test2"), Arrays.asList("Allergies Test1", "Allergies Test2")),
-                new MedicalRecord(2L, "Test FirstName2", "Test LastName2", "22/02/1112", Arrays.asList("Medication Test3", "Medication Test4"), Arrays.asList("Allergies Test3", "Allergies Test4")));
+       Iterable<MedicalRecord> listTestMedicalRecord = Arrays.asList(
+                new MedicalRecord("Test FirstName1", "Test LastName1", "11/11/1111", Arrays.asList("Medication Test1", "Medication Test2"), Arrays.asList("Allergies Test1", "Allergies Test2")),
+                new MedicalRecord("Test FirstName2", "Test LastName2", "22/02/1112", Arrays.asList("Medication Test3", "Medication Test4"), Arrays.asList("Allergies Test3", "Allergies Test4")));
 
         when(medicalRecordService.list()).thenReturn(listTestMedicalRecord);
 
-        mockMvc.perform(get("/medicalrecord"))
+        mockMvc.perform(get("/medicalrecords"))
                 .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
 
                 .andExpect(jsonPath("$[0].firstName").value("Test FirstName1"))
                 .andExpect(jsonPath("$[0].lastName").value("Test LastName1"))
@@ -65,84 +68,43 @@ public class MedicalRecordControllerTests {
     }
 
     @Test
-    public void testGetMedicalRecord() throws Exception {
-        MedicalRecord medicalRecord = new MedicalRecord(1L, "Test FirstName1", "Test LastName1", "11/11/1111", Arrays.asList("Medication Test1", "Medication Test2"), Arrays.asList("Allergies Test1", "Allergies Test2"));
-        Long id = 1L;
-        when(medicalRecordService.get(id)).thenReturn(Optional.of(medicalRecord));
-
-        mockMvc.perform(get("/medicalRecord/{id}", id))
-                .andExpect(status().isOk())
-
-                .andExpect(jsonPath("$.firstName").value("Test FirstName1"))
-                .andExpect(jsonPath("$.lastName").value("Test LastName1"))
-                .andExpect(jsonPath("$.birthdate").value("11/11/1111"))
-                .andExpect(jsonPath("$.medications[0]").value("Medication Test1"))
-                .andExpect(jsonPath("$.medications[1]").value("Medication Test2"))
-                .andExpect(jsonPath("$.allergies[0]").value("Allergies Test1"))
-                .andExpect(jsonPath("$.allergies[1]").value("Allergies Test2"));
-    }
-
-    @Test
     public void testPostMedicalRecord() throws Exception {
         final ObjectMapper objectMapper = new ObjectMapper();
 
-        MedicalRecord medicalRecord = new MedicalRecord(1L, "Test FirstName1", "Test LastName1", "11/11/1111", Arrays.asList("Medication Test1", "Medication Test2"), Arrays.asList("Allergies Test1", "Allergies Test2"));
+        MedicalRecord medicalRecord = new MedicalRecord("Test FirstName1", "Test LastName1", "11/11/1111", Arrays.asList("Medication Test1", "Medication Test2"), Arrays.asList("Allergies Test1", "Allergies Test2"));
+        List<MedicalRecord> listTestMedicalRecord = List.of(medicalRecord);
 
-
-
-        when(medicalRecordRepositories.save(medicalRecord)).thenReturn(medicalRecord);
-
+        when(medicalRecordService.addMedicalRecord(medicalRecord)).thenReturn(listTestMedicalRecord);
 
         mockMvc.perform(post("/medicalRecord")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(medicalRecord)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.birthdate").value("11/11/1111"))
-                .andExpect(jsonPath("$.medications[0]").value("Medication Test1"))
-                .andExpect(jsonPath("$.medications[1]").value("Medication Test2"))
-                .andExpect(jsonPath("$.allergies[0]").value("Allergies Test1"))
-                .andExpect(jsonPath("$.allergies[1]").value("Allergies Test2"));
+                .andExpect(jsonPath("$[0].birthdate").value("11/11/1111"))
+                .andExpect(jsonPath("$[0].medications[0]").value("Medication Test1"))
+                .andExpect(jsonPath("$[0].medications[1]").value("Medication Test2"))
+                .andExpect(jsonPath("$[0].allergies[0]").value("Allergies Test1"))
+                .andExpect(jsonPath("$[0].allergies[1]").value("Allergies Test2"));
     }
 
     @Test
     public void testPutMedicalRecord() throws Exception {
+        MedicalRecord medicalRecord = new MedicalRecord("Test FirstName1", "Test LastName1", "11/11/1111", Arrays.asList("Medication Test1", "Medication Test2"), Arrays.asList("Allergies Test1", "Allergies Test2"));
 
-        MedicalRecord medicalRecordOrigin = new MedicalRecord();
-        medicalRecordOrigin.setId(1L);
-        medicalRecordOrigin.setFirstName("Test FirstName");
-        medicalRecordOrigin.setLastName("Test LastName");
-        medicalRecordOrigin.setBirthdate("11/11/1111");
-        medicalRecordOrigin.setMedications(Arrays.asList("Medication Test1", "Medication Test2"));
-        medicalRecordOrigin.setAllergies(Arrays.asList("Allergies Test1", "Allergies Test2"));
+        String firstName = "Test FirstName1";
+        String lastName = "Test LastName1";
+        when(medicalRecordService.editMedicalRecords(firstName, lastName, medicalRecord)).thenReturn(true);
 
-        MedicalRecord medicalRecordModified = new MedicalRecord();
-        medicalRecordModified.setBirthdate("11/11/1112");
-        medicalRecordModified.setMedications(Arrays.asList("Medication Test3", "Medication Test4"));
-        medicalRecordModified.setAllergies(Arrays.asList("Allergies Test3", "Allergies Test4"));
+        ResponseEntity<Void> response = medicalRecordController.updateMedicalRecord(firstName, lastName, medicalRecord);
 
-        Long id = 1L;
-
-
-        when(medicalRecordRepositories.findById(id)).thenReturn(Optional.of(medicalRecordOrigin));
-
-        ResultActions response = mockMvc.perform(put("/medicalRecord/{id}", id)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(medicalRecordModified)));
-
-        response.andExpect(status().isOk());
-
-        assertEquals(medicalRecordModified.getBirthdate(), medicalRecordOrigin.getBirthdate());
-        assertEquals(medicalRecordModified.getMedications(), medicalRecordOrigin.getMedications());
-        assertEquals(medicalRecordModified.getAllergies(), medicalRecordOrigin.getAllergies());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
     public void testDeleteMedicalRecord() throws Exception {
         String firstName = "testname";
         String lastName = "testlastname";
-        long id = 1L;
         MedicalRecord medicalRecord = new MedicalRecord();
-        medicalRecord.setId(1L);
         medicalRecord.setFirstName(firstName);
         medicalRecord.setLastName(lastName);
 

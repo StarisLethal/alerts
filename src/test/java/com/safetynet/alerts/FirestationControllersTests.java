@@ -2,23 +2,20 @@ package com.safetynet.alerts;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.safetynet.alerts.controller.FirestationController;
-import com.safetynet.alerts.controller.MedicalRecordController;
 import com.safetynet.alerts.model.Firestation;
-import com.safetynet.alerts.model.Person;
 import com.safetynet.alerts.repositories.FirestationRepositories;
-import com.safetynet.alerts.repositories.MedicalRecordRepositories;
 import com.safetynet.alerts.service.FirestationService;
-import com.safetynet.alerts.service.MedicalRecordService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +29,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class FirestationControllersTests {
 
+    @Autowired
+    private FirestationController firestationController;
     @MockBean
     FirestationService firestationService;
     @MockBean
@@ -39,81 +38,59 @@ public class FirestationControllersTests {
 
     @Autowired
     private MockMvc mockMvc;
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Test
     public void getFirestationsTest() throws Exception {
+        List<Firestation> firestationList = new ArrayList<>();
+        firestationList.add(new Firestation("Test Address1", "Test Firestation1"));
+        firestationList.add(new Firestation("Test Address2", "Test Firestation2"));
 
-        List<Firestation> listTestFirestation= Arrays.asList(
-                new Firestation(1L,"Test Address1","Test Firestation1"),
-                new Firestation(2L,"Test Address2","Test Firestation2"));
+        when(firestationService.list()).thenReturn(firestationList);
 
-                when(firestationService.list()).thenReturn(listTestFirestation);
-
-                mockMvc.perform(get("/firestations"))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$[0].id").value("1"))
-                        .andExpect(jsonPath("$[0].address").value("Test Address1"))
-                        .andExpect(jsonPath("$[0].station").value("Test Firestation1"))
-                        .andExpect(jsonPath("$[1].id").value("2"))
-                        .andExpect(jsonPath("$[1].address").value("Test Address2"))
-                        .andExpect(jsonPath("$[1].station").value("Test Firestation2"));
-
-    }
-
-    @Test
-    public void testGetFirestation() throws Exception {
-        Firestation firestation = new Firestation(1L,"Test Address1","Test Firestation1");
-
-        Long id = 1L;
-        when(firestationService.get(id)).thenReturn(Optional.of(firestation));
-        mockMvc.perform(get("/firestation/{id}",id))
+        mockMvc.perform(get("/firestations"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.address").value("Test Address1"))
-                .andExpect(jsonPath("$.station").value("Test Firestation1"));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].address").value("Test Address1"))
+                .andExpect(jsonPath("$[0].station").value("Test Firestation1"))
+                .andExpect(jsonPath("$[1].address").value("Test Address2"))
+                .andExpect(jsonPath("$[1].station").value("Test Firestation2"));
     }
 
     @Test
     public void testPostFirestation() throws Exception {
-        Firestation firestation = new Firestation(1L,"Test Address1","Test Firestation1");
         final ObjectMapper objectMapper = new ObjectMapper();
+        Firestation firestation = new Firestation("Test Address1", "Test Firestation1");
+        List<Firestation> firestationList = List.of(firestation);
 
-        when(firestationService.save(any(Firestation.class))).thenReturn(firestation);
+        when(firestationService.addFirestation(any(Firestation.class))).thenReturn(firestationList);
 
         mockMvc.perform(post("/firestation")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(firestation)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.address").value("Test Address1"))
-                .andExpect(jsonPath("$.station").value("Test Firestation1"));
+                .andExpect(jsonPath("$[0].address").value("Test Address1"))
+                .andExpect(jsonPath("$[0].station").value("Test Firestation1"));
     }
 
     @Test
-    public void testPutFirestation() throws Exception {
-        Firestation firestationSource = new Firestation(1L, "Test Address1", "Test Firestation1");
-        Firestation firestationModified = new Firestation(1L, "Test Address1", "Test Firestation1");
+    public void testUpdateFirestationSuccess() {
+        String address = "TestAddress";
+        String station = "TestStation";
+        Firestation updatedFirestation = new Firestation(address, station);
+        when(firestationService.editFirestationNumber(address, station)).thenReturn(Optional.of(updatedFirestation));
 
-        Long id = 1L;
+        ResponseEntity<Firestation> response = firestationController.updateFirestation(address, station);
 
-        when(firestationRepositories.findById(id)).thenReturn(Optional.of(firestationSource));
-
-        ResultActions response = mockMvc.perform(put("/firestation/{id}", id)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(firestationModified)));
-
-        response.andExpect(status().isOk());
-
-        assertEquals(firestationModified.getAddress(), firestationSource.getAddress());
-        assertEquals(firestationModified.getStation(), firestationSource.getStation());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(updatedFirestation, response.getBody());
     }
 
     @Test
     public void testDeleteFirestationByAddress() throws Exception {
-        Firestation firestation = new Firestation(1L, "Test Address1", "Test Firestation1");
+        Firestation firestation = new Firestation("Test Address1", "Test Firestation1");
         String address = "Test Address1";
 
-        mockMvc.perform(delete("/deleteFirestationByAddress")
+        mockMvc.perform(delete("/firestation")
                         .param("address", "Test Address1")
 
                         .contentType(MediaType.APPLICATION_JSON))
@@ -123,10 +100,10 @@ public class FirestationControllersTests {
 
     @Test
     public void testDeleteFirestationByStation() throws Exception {
-        Firestation firestation = new Firestation(1L, "Test Address1", "Test Firestation1");
+        Firestation firestation = new Firestation("Test Address1", "Test Firestation1");
         String address = "Test Address1";
 
-        mockMvc.perform(delete("/deleteFirestationByStation")
+        mockMvc.perform(delete("/firestation")
                         .param("station", "Test Firestation1")
 
                         .contentType(MediaType.APPLICATION_JSON))

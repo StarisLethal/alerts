@@ -1,6 +1,5 @@
 package com.safetynet.alerts.controller;
 
-import com.safetynet.alerts.exception.ResourceNotFoundException;
 import com.safetynet.alerts.model.Firestation;
 import com.safetynet.alerts.repositories.FirestationRepositories;
 import com.safetynet.alerts.service.FirestationService;
@@ -59,10 +58,10 @@ public class FirestationController {
     public ResponseEntity<Firestation> updateFirestation(@PathVariable String address, @RequestBody String station) {
         try {
 
-            firestationService.editFirestationNumber(address, station);
+            Optional<Firestation> updatedFirestation = firestationService.editFirestationNumber(address, station);
 
             logger.info("PUT request to /firestation/" + address + " successful");
-            return (ResponseEntity<Firestation>) ResponseEntity.ok();
+            return ResponseEntity.ok(updatedFirestation.get());
         } catch (Exception e) {
             logger.error("Error processing PUT request to /firestation/" + address, e);
             return null;

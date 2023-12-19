@@ -6,19 +6,17 @@ import com.safetynet.alerts.model.Person;
 import com.safetynet.alerts.repositories.PersonRepositories;
 import com.safetynet.alerts.service.PersonService;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,6 +28,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class PersonControllerTests {
 
+    @Autowired
+    private PersonController personController;
     @MockBean
     PersonService personService;
     @MockBean
@@ -42,32 +42,22 @@ public class PersonControllerTests {
 
     @Test
     public void testGetPersons() throws Exception {
-        List<Person> listTestPerson= Arrays.asList(
-                new Person(1L,"Test FirstName","Test LastName","Test Address","Test City","Test Zip","Test Phone","Test Mail"),
-                new Person(2L,"Test FirstName2","Test LastName2","Test Address2","Test City2","Test Zip2","Test Phone2","Test Mail2"));
+        Iterable<Person> expectedPersons = Arrays.asList(
+                new Person("Test FirstName","Test LastName","Test Address","Test City","Test Zip","Test Phone","Test Mail"),
+                new Person("Test FirstName2","Test LastName2","Test Address2","Test City2","Test Zip2","Test Phone2","Test Mail2"));
 
-        when(personService.list()).thenReturn(listTestPerson);
+        when(personService.list()).thenReturn(expectedPersons);
 
         mockMvc.perform(get("/persons"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value("1"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
                 .andExpect(jsonPath("$[0].firstName").value("Test FirstName"))
                 .andExpect(jsonPath("$[0].lastName").value("Test LastName"))
-                .andExpect(jsonPath("$[1].id").value("2"))
+                .andExpect(jsonPath("$[0].address").value("Test Address"))
                 .andExpect(jsonPath("$[1].firstName").value("Test FirstName2"))
-                .andExpect(jsonPath("$[1].lastName").value("Test LastName2"));
-    }
-
-    @Test
-    public void testGetPerson() throws Exception {
-        Person person = new Person(1L,"Test FirstName","Test LastName","Test Address","Test City","Test Zip","Test Phone","Test Mail");
-
-        Long id = 1L;
-        when(personService.get(id)).thenReturn(Optional.of(person));
-        mockMvc.perform(get("/person/{id}",id))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstName").value("Test FirstName"))
-                .andExpect(jsonPath("$.lastName").value("Test LastName"));
+                .andExpect(jsonPath("$[1].lastName").value("Test LastName2"))
+                .andExpect(jsonPath("$[1].address").value("Test Address2"));
     }
 
     @Test
@@ -82,57 +72,34 @@ public class PersonControllerTests {
         person.setZip("Test Zip");
         person.setPhone("Test Phone");
         person.setEmail("Test Mail");
-        when(personService.save(any(Person.class))).thenReturn(person);
+        List<Person> personList = List.of(person);
+        when(personService.addPerson(any(Person.class))).thenReturn(personList);
 
         mockMvc.perform(post("/person")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(person)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.firstName").value("Test FirstName"))
-                .andExpect(jsonPath("$.lastName").value("Test LastName"));
+                .andExpect(jsonPath("$[0].firstName").value("Test FirstName"))
+                .andExpect(jsonPath("$[0].lastName").value("Test LastName"));
     }
 
     @Test
-    public void testPutPerson() throws Exception {
-        Person personPutTest = new Person();
-        personPutTest.setAddress("Test Address");
-        personPutTest.setCity("Test City");
-        personPutTest.setZip("Test Zip");
-        personPutTest.setPhone("Test Phone");
-        personPutTest.setEmail("Test Mail");
+    public void testUpdatePerson() {
+        Person person = new Person("Test FirstName", "Test LastName", "Test Address",
+                "Test City", "Test Zip", "Test Phone", "Test Mail");
 
-        long id = 1L;
+        when(personService.editPerson("Test FirstName", "Test LastName", person)).thenReturn(true);
 
-        Person personTest = new Person();
-        personTest.setId(1L);
-        personTest.setAddress("Origin Address");
-        personTest.setCity("Origin City");
-        personTest.setZip("Origin Zip");
-        personTest.setPhone("Origin Phone");
-        personTest.setEmail("Origin Mail");
+        ResponseEntity<Person> response = personController.updatePerson("Test FirstName", "Test LastName", person);
 
-        when(personRepositories.findById(id)).thenReturn(Optional.of(personTest));
-
-        ResultActions response = mockMvc.perform(put("/person/{id}", id)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(personPutTest)));
-
-        response.andExpect(status().isOk());
-
-        assertEquals(personPutTest.getAddress(), personTest.getAddress());
-        assertEquals(personPutTest.getCity(), personTest.getCity());
-        assertEquals(personPutTest.getZip(), personTest.getZip());
-        assertEquals(personPutTest.getPhone(), personTest.getPhone());
-        assertEquals(personPutTest.getEmail(), personTest.getEmail());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
     public void testDeletePerson() throws Exception {
         String firstName = "testname";
         String lastName = "testlastname";
-        long id = 1L;
         Person personTest = new Person();
-        personTest.setId(1L);
         personTest.setFirstName(firstName);
         personTest.setLastName(lastName);
 

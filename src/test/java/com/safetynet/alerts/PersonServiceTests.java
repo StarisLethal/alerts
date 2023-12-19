@@ -9,10 +9,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -26,11 +30,11 @@ public class PersonServiceTests {
 
     @Test
     void testListPersons() {
-        Person person1 = new Person(1L,"Test FirstName","Test LastName","Test Address","Test City","Test Zip","Test Phone","Test Mail");
-        Person person2 = new Person(2L,"Test FirstName2","Test LastName2","Test Address2","Test City2","Test Zip2","Test Phone2","Test Mail2");
+        Person person1 = new Person("Test FirstName","Test LastName","Test Address","Test City","Test Zip","Test Phone","Test Mail");
+        Person person2 = new Person("Test FirstName2","Test LastName2","Test Address2","Test City2","Test Zip2","Test Phone2","Test Mail2");
         List<Person> personList = Arrays.asList(person1, person2);
 
-        when(personRepositories.findAll()).thenReturn(personList);
+        when(personRepositories.getPersons()).thenReturn(personList);
 
         Iterable<Person> result = personService.list();
 
@@ -38,67 +42,62 @@ public class PersonServiceTests {
     }
 
     @Test
-    void testGetPersonById() {
-        Long id = 1L;
-        Person person = new Person();
-        person.setFirstName("Test FirstName");
-        person.setLastName("Test LastName");
-        person.setAddress("Test Address");
-        person.setCity("Test City");
-        person.setZip("Test Zip");
-        person.setPhone("Test Phone");
-        person.setEmail("Test Mail");
-
-        when(personRepositories.findById(id)).thenReturn(Optional.of(person));
-
-        Optional<Person> result = personRepositories.findById(id);
-
-        assertEquals(person, result.orElse(null));
-    }
-
-    @Test
     void testSavePerson() {
-        Person person = new Person();
-        person.setFirstName("Test FirstName");
-        person.setLastName("Test LastName");
-        person.setAddress("Test Address");
-        person.setCity("Test City");
-        person.setZip("Test Zip");
-        person.setPhone("Test Phone");
-        person.setEmail("Test Mail");
+        Person person = new Person("Test FirstName","Test LastName","Test Address","Test City","Test Zip","Test Phone","Test Mail");
+        List<Person> personList = new ArrayList<>(Collections.singleton(person));
 
-        when(personRepositories.save(person)).thenReturn(person);
+        when(personService.addPerson(person)).thenReturn(personList);
 
-        Person result = personService.save(person);
-
-        assertEquals(person, result);
-    }
-
-    @Test
-    void testSavePersons() {
-        List<Person> personList = new ArrayList<>();
-        Person person1 = new Person();
-        person1.setAddress("Test Address");
-        person1.setCity("Test City");
-        person1.setZip("Test Zip");
-        person1.setPhone("Test Phone");
-        person1.setEmail("Test Mail");
-
-        Person person2 = new Person();
-        person2.setAddress("Origin Address");
-        person2.setCity("Origin City");
-        person2.setZip("Origin Zip");
-        person2.setPhone("Origin Phone");
-        person2.setEmail("Origin Mail");
-        personList.add(person1);
-        personList.add(person2);
-
-        when(personRepositories.saveAll(personList)).thenReturn(personList);
-
-        Iterable<Person> result = personService.save(personList);
+        List<Person> result = personService.addPerson(person);
 
         assertEquals(personList, result);
     }
+
+    @Test
+    public void testEditPerson() {
+        String firstName = "Test First Name";
+        String lastName = "Test Last Name";
+        Person person = new Person();
+        person.setFirstName(firstName);
+        person.setLastName(lastName);
+        person.setAddress("Test Address");
+        person.setPhone("Test Phone");
+        person.setCity("Test City");
+        person.setZip("Test Zip");
+        person.setEmail("Test Mail");
+        List<Person> personList = new ArrayList<>(Collections.singleton(person));
+
+        when(personRepositories.getPersons()).thenReturn(personList);
+
+        Person updatedPerson = new Person(firstName, lastName, "Test Address2", "Test City2", "Test Zip2", "Test Phone2", "Test Mail2");
+
+        boolean result = personService.editPerson(firstName, lastName, updatedPerson);
+
+        assertTrue(result);
+
+        assertEquals("Test Address2", person.getAddress());
+        assertEquals("Test Phone2", person.getPhone());
+        assertEquals("Test City2", person.getCity());
+        assertEquals("Test Zip2", person.getZip());
+        assertEquals("Test Mail2", person.getEmail());
+    }
+
+    @Test
+    public void testdeletePersonByName() {
+        Person person1 = new Person("Test FirstName","Test LastName","Test Address","Test City","Test Zip","Test Phone","Test Mail");
+        Person person2 = new Person("Test FirstName2","Test LastName2","Test Address2","Test City2","Test Zip2","Test Phone2","Test Mail2");
+        Person person3 = new Person("Test FirstName3", "Test LastName3", "Test Address3", "Test City3", "Test Zip3", "Test Phone3", "Test Mail3");
+        List<Person> personList = Arrays.asList(person1, person2, person3);
+        String firstName = "Test FirstName";
+        String lastName = "Test LastName";
+
+        when(personRepositories.getPersons()).thenReturn(personList);
+
+        List<Person> updatedPerson = personService.deletePersonByName(firstName, lastName);
+
+        assertEquals(2, updatedPerson.size());
+    }
+
     @Test
     void testGetAllEmails() {
         List<Person> testMail = new ArrayList<>();
@@ -106,7 +105,7 @@ public class PersonServiceTests {
         person1.setEmail("sleepy_dev@example.com");
         testMail.add(person1);
 
-        when(personRepositories.findAll()).thenReturn(testMail);
+        when(personRepositories.getPersons()).thenReturn(testMail);
 
         List<String> result = personService.getAllEmails("Culver");
 
@@ -116,51 +115,82 @@ public class PersonServiceTests {
 
     @Test
     void testGetPersonByCompleteName() {
-        String firstName = "Marneus";
-        String lastName = "Calgar";
-        List<String> expectedEmails = Arrays.asList("sleepy_dev@example.com");
+        Person person1 = new Person("Test FirstName","Test LastName","Test Address","Test City","Test Zip","Test Phone","Test Mail");
+        Person person2 = new Person("Test FirstName2","Test LastName2","Test Address2","Test City2","Test Zip2","Test Phone2","Test Mail2");
+        List<Person> personList = Arrays.asList(person1, person2);
+        String firstName = "Test FirstName";
+        String lastName = "Test LastName";
 
-        when(personRepositories.findPersonInfoByCompleteName(firstName, lastName)).thenReturn(expectedEmails);
 
-        List<String> result = personService.getPersonByCompleteName(firstName, lastName);
+        when(personRepositories.getPersons()).thenReturn(personList);
 
-        assertEquals(expectedEmails, result);
+        List<Object[]> result = personService.getPersonByCompleteName(firstName, lastName);
+
+        Object[] personResult = result.get(0);
+        assertEquals("Test Address", personResult[2]);
+        assertEquals("Test Mail", personResult[3]);
     }
 
     @Test
     void testGetPersonByAddress() {
-        String address = "42 Solar System";
-        List<Object[]> expectedPersonData = Collections.singletonList(new Object[]{"Marneus", "Calgar"});
-
-        when(personRepositories.findByAddressForFire(address)).thenReturn(expectedPersonData);
+        Person person1 = new Person("Test FirstName","Test LastName","Test Address","Test City","Test Zip","Test Phone","Test Mail");
+        Person person2 = new Person("Test FirstName2","Test LastName2","Test Address2","Test City2","Test Zip2","Test Phone2","Test Mail2");
+        List<Person> personList = Arrays.asList(person1, person2);
+        String address = "Test Address";
+        when(personRepositories.getPersons()).thenReturn(personList);
 
         List<Object[]> result = personService.getPersonByAddress(address);
 
-        assertEquals(expectedPersonData, result);
+        Object[] personResult = result.get(0);
+        assertEquals("Test FirstName", personResult[0]);
+        assertEquals("Test LastName", personResult[1]);
+    }
+
+    @Test
+    void testGetFLPByAddress() {
+        Person person1 = new Person("Test FirstName","Test LastName","Test Address","Test City","Test Zip","Test Phone","Test Mail");
+        Person person2 = new Person("Test FirstName2","Test LastName2","Test Address2","Test City2","Test Zip2","Test Phone2","Test Mail2");
+        List<Person> personList = Arrays.asList(person1, person2);
+        String address = "Test Address";
+        when(personRepositories.getPersons()).thenReturn(personList);
+
+        List<Object[]> result = personService.getFLPByAddress(address);
+
+        Object[] personResult = result.get(0);
+        assertEquals("Test FirstName", personResult[0]);
+        assertEquals("Test LastName", personResult[1]);
+        assertEquals("Test Phone", personResult[2]);
     }
 
     @Test
     void testGetPhoneByAddress() {
-        String address = "42 Solar System";
-        List<Object[]> expectedPhoneData = Collections.singletonList(new Object[]{"Marneus", "Calgar", "1111-1111-111111"});
-
-        when(personRepositories.findByAddressForPhoneAlert(address)).thenReturn(expectedPhoneData);
+        Person person1 = new Person("Test FirstName","Test LastName","Test Address","Test City","Test Zip","Test Phone","Test Mail");
+        Person person2 = new Person("Test FirstName2","Test LastName2","Test Address2","Test City2","Test Zip2","Test Phone2","Test Mail2");
+        List<Person> personList = Arrays.asList(person1, person2);
+        String address = "Test Address";
+        when(personRepositories.getPersons()).thenReturn(personList);
 
         List<Object[]> result = personService.getPhoneByAddress(address);
 
-        assertEquals(expectedPhoneData, result);
+        Object[] personResult = result.get(0);
+        assertEquals("Test Phone", personResult[0]);
     }
 
     @Test
     void testGetPersonForFirestations() {
-        String address = "42 Solar System";
-        List<Object[]> expectedPersonData = Collections.singletonList(new Object[]{"Marneus", "Calgar"});
-
-        when(personRepositories.findByAddressForFirestation(address)).thenReturn(expectedPersonData);
+        Person person1 = new Person("Test FirstName","Test LastName","Test Address","Test City","Test Zip","Test Phone","Test Mail");
+        Person person2 = new Person("Test FirstName2","Test LastName2","Test Address2","Test City2","Test Zip2","Test Phone2","Test Mail2");
+        List<Person> personList = Arrays.asList(person1, person2);
+        String address = "Test Address";
+        when(personRepositories.getPersons()).thenReturn(personList);
 
         List<Object[]> result = personService.getPersonForFirestations(address);
 
-        assertEquals(expectedPersonData, result);
+        Object[] personResult = result.get(0);
+        assertEquals("Test FirstName", personResult[0]);
+        assertEquals("Test LastName", personResult[1]);
+        assertEquals("Test Address", personResult[2]);
+        assertEquals("Test Phone", personResult[3]);
     }
 }
 

@@ -9,13 +9,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -29,11 +27,11 @@ class FirestationServiceTests {
 
     @Test
     void testListFirestations() {
-        Firestation firestation1 = new Firestation(1L, "TestAddress1", "TestStation1");
-        Firestation firestation2 = new Firestation(2L, "TestAddress2", "TestStation2");
-        List<Firestation> firestationList = Arrays.asList(firestation1, firestation2);
+        List<Firestation> firestationList = new ArrayList<>();
+        firestationList.add(new Firestation("Test Address1", "Test Firestation1"));
+        firestationList.add(new Firestation("Test Address2", "Test Firestation2"));
 
-        when(firestationRepositories.findAll()).thenReturn(firestationList);
+        when(firestationService.list()).thenReturn(firestationList);
 
         Iterable<Firestation> result = firestationService.list();
 
@@ -41,76 +39,93 @@ class FirestationServiceTests {
     }
 
     @Test
-    void testGetFirestationById() {
-        Long id = 1L;
-        Firestation firestation = new Firestation();
-        firestation.setId(id);
-        firestation.setStation("TestStation");
-
-        when(firestationRepositories.findById(id)).thenReturn(Optional.of(firestation));
-
-        Optional<Firestation> result = firestationService.get(id);
-
-        assertEquals(firestation, result.orElse(null));
-    }
-
-    @Test
     void testSaveFirestation() {
-        Firestation firestation = new Firestation();
-        firestation.setStation("1");
+        Firestation firestation = new Firestation("Test Address1", "Test Firestation1");
+        List<Firestation> firestationList = new ArrayList<>(Collections.singleton(firestation));
 
-        when(firestationRepositories.save(firestation)).thenReturn(firestation);
+        when(firestationService.addFirestation(firestation)).thenReturn(firestationList);
 
-        Firestation result = firestationService.save(firestation);
+        List<Firestation> result = firestationService.addFirestation(firestation);
 
-        assertEquals(firestation, result);
+        assertEquals(firestationList, result);
     }
 
     @Test
-    void testSaveFirestations() {
-        List<Firestation> firestations = new ArrayList<>();
-        Firestation firestation1 = new Firestation();
-        firestation1.setStation("1");
-        Firestation firestation2 = new Firestation();
-        firestation2.setStation("2");
-        firestations.add(firestation1);
-        firestations.add(firestation2);
+    public void testEditFirestationNumber() {
+        Firestation firestation = new Firestation("Test Address1", "Test Firestation1");
+        List<Firestation> firestationList = new ArrayList<>(Collections.singleton(firestation));
+        String currentAddress = "Test Address1";
+        String newStationNumber = "Test NewStation";
 
-        when(firestationRepositories.saveAll(firestations)).thenReturn(firestations);
+        when(firestationRepositories.getFirestations()).thenReturn(firestationList);
 
-        Iterable<Firestation> result = firestationService.save(firestations);
+        Firestation updatedFirestation = new Firestation("Test Address1", "Test NewStation");
 
-        assertEquals(firestations, result);
+        Optional<Firestation> result = firestationService.editFirestationNumber(currentAddress, newStationNumber);
+
+        assertEquals(newStationNumber, result.get().getStation());
     }
 
     @Test
-    void testGetFireStationByAddress() {
-        List<Object[]> firestationTest = new ArrayList<>();
-        Object[] test1 = {"Marneus", "Calgar"};
-        Object[] test2 = {"Sol", "Pyro"};
-        firestationTest.add(test1);
-        firestationTest.add(test2);
+    public void testDeleteFirestationByStation() {
+        Firestation firestation1 = new  Firestation("Test Address1", "Test Firestation1");
+        Firestation firestation2 = new Firestation("Test Address2", "Test Firestation2");
+        Firestation firestation3 = new Firestation("Test Address3", "Test Firestation3");
+        List<Firestation> firestationList = Arrays.asList(firestation1,firestation2,firestation3);
+        String firestationNumber = "Test Firestation1";
 
-        when(firestationRepositories.findByAddressForFire("42 Solar System")).thenReturn(firestationTest);
+        when(firestationRepositories.getFirestations()).thenReturn(firestationList);
 
-        List<Object[]> result = firestationService.getFireStationByAddress("42 Solar System");
+        List<Firestation> updatedFirestations = firestationService.deleteFirestationByStation(firestationNumber);
 
-        assertEquals(firestationTest, result);
+        assertEquals(2, updatedFirestations.size());
+    }
+
+    @Test
+    public void testdeleteFirestationByAddress() {
+        Firestation firestation1 = new  Firestation("Test Address1", "Test Firestation1");
+        Firestation firestation2 = new Firestation("Test Address2", "Test Firestation2");
+        Firestation firestation3 = new Firestation("Test Address3", "Test Firestation3");
+        List<Firestation> firestationList = Arrays.asList(firestation1,firestation2,firestation3);
+        String firestationAddress = "Test Address2";
+
+        when(firestationRepositories.getFirestations()).thenReturn(firestationList);
+
+        List<Firestation> updatedFirestations = firestationService.deleteFirestationByAddress(firestationAddress);
+
+        System.out.println("Updated Firestations: " + updatedFirestations);
+
+        assertEquals(2, updatedFirestations.size());
+    }
+
+    @Test
+    public void testGetFireStationByAddress() {
+        Firestation firestation1 = new  Firestation("Test Address1", "Test Firestation1");
+        Firestation firestation2 = new Firestation("Test Address2", "Test Firestation2");
+        Firestation firestation3 = new Firestation("Test Address3", "Test Firestation3");
+        List<Firestation> firestationList = Arrays.asList(firestation1,firestation2,firestation3);
+        String address = "Test Address1";
+
+        when(firestationRepositories.getFirestations()).thenReturn(firestationList);
+
+        String station = firestationService.getFireStationByAddress(address);
+
+        assertEquals("Test Firestation1", station);
     }
 
     @Test
     void testGetAddressByFireStationNumber() {
-        List<Object[]> firestationTest = new ArrayList<>();
-        Object[] test1 = {"42 Solar System"};
-        Object[] test2 = {"24 Sleepy dev St"};
-        firestationTest.add(test1);
-        firestationTest.add(test2);
+        Firestation firestation1 = new  Firestation("Test Address1", "Test Firestation1");
+        Firestation firestation2 = new Firestation("Test Address2", "Test Firestation2");
+        Firestation firestation3 = new Firestation("Test Address3", "Test Firestation3");
+        List<Firestation> firestationList = Arrays.asList(firestation1,firestation2,firestation3);
+        String firestationNumber = "Test Firestation1";
 
-        when(firestationRepositories.findByFireStationNumber("1")).thenReturn(firestationTest);
+        when(firestationRepositories.getFirestations()).thenReturn(firestationList);
 
-        List<Object[]> result = firestationService.getAddressByFireStationNumber("1");
+        List<String> address = firestationService.getAddressByFireStationNumber(firestationNumber);
 
-        assertEquals(firestationTest, result);
+        assertTrue(address.contains("Test Address1"));
     }
 }
 

@@ -1,7 +1,6 @@
 package com.safetynet.alerts;
 
 import com.safetynet.alerts.model.MedicalRecord;
-import com.safetynet.alerts.model.Person;
 import com.safetynet.alerts.repositories.MedicalRecordRepositories;
 import com.safetynet.alerts.service.MedicalRecordService;
 import org.junit.jupiter.api.Test;
@@ -14,9 +13,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -29,97 +27,94 @@ public class MedicalRecordTests {
     MedicalRecordService medicalRecordService;
 
     @Test
-    void testListPersons() {
+    void testListMedicalRecord() {
         List<MedicalRecord> listTestMedicalRecord = Arrays.asList(
-                new MedicalRecord(1L, "Test FirstName1", "Test LastName1", "11/11/1111", Arrays.asList("Medication Test1", "Medication Test2"), Arrays.asList("Allergies Test1", "Allergies Test2")),
-                new MedicalRecord(2L, "Test FirstName2", "Test LastName2", "22/02/1112", Arrays.asList("Medication Test3", "Medication Test4"), Arrays.asList("Allergies Test3", "Allergies Test4")));
+                new MedicalRecord("Test FirstName1", "Test LastName1", "11/11/1111", Arrays.asList("Medication Test1", "Medication Test2"), Arrays.asList("Allergies Test1", "Allergies Test2")),
+                new MedicalRecord("Test FirstName2", "Test LastName2", "22/02/1112", Arrays.asList("Medication Test3", "Medication Test4"), Arrays.asList("Allergies Test3", "Allergies Test4")));
 
-        when(medicalRecordRepositories.findAll()).thenReturn(listTestMedicalRecord);
+        when(medicalRecordService.list()).thenReturn(listTestMedicalRecord);
 
         Iterable<MedicalRecord> result = medicalRecordService.list();
 
-        assertEquals(listTestMedicalRecord, result);
+        assertThat(result).containsExactlyInAnyOrderElementsOf(listTestMedicalRecord);
     }
 
     @Test
-    void testGetPersonById() {
-        MedicalRecord medicalRecord = new MedicalRecord(1L, "Test FirstName1", "Test LastName1", "11/11/1111", Arrays.asList("Medication Test1", "Medication Test2"), Arrays.asList("Allergies Test1", "Allergies Test2"));
-        Long id = 1L;
+    void testSaveMedicalRecord() {
+        MedicalRecord medicalRecord = new MedicalRecord("Test FirstName1", "Test LastName1", "11/11/1111", Arrays.asList("Medication Test1", "Medication Test2"), Arrays.asList("Allergies Test1", "Allergies Test2"));
+        List<MedicalRecord> medicalRecordList= new ArrayList<>(Collections.singleton(medicalRecord));
 
-        when(medicalRecordRepositories.findById(id)).thenReturn(Optional.of(medicalRecord));
+        when(medicalRecordService.addMedicalRecord(medicalRecord)).thenReturn(medicalRecordList);
 
-        Optional<MedicalRecord> result = medicalRecordService.get(id);
-
-        assertEquals(medicalRecord, result.orElse(null));
-    }
-
-    @Test
-    void testSavePerson() {
-        MedicalRecord medicalRecord = new MedicalRecord();
-
-        medicalRecord.setFirstName("Test FirstName");
-        medicalRecord.setLastName("Test LastName");
-        medicalRecord.setBirthdate("11/11/1111");
-        medicalRecord.setMedications(Arrays.asList("Medication Test1", "Medication Test2"));
-        medicalRecord.setAllergies(Arrays.asList("Allergies Test1", "Allergies Test2"));
-
-        when(medicalRecordRepositories.save(medicalRecord)).thenReturn(medicalRecord);
-
-        MedicalRecord result = medicalRecordService.save(medicalRecord);
-
-        assertEquals(medicalRecord, result);
-    }
-
-    @Test
-    void testSavePersons() {
-        List<MedicalRecord> medicalRecordList = new ArrayList<>();
-        MedicalRecord medicalRecord = new MedicalRecord();
-        medicalRecord.setId(1L);
-        medicalRecord.setFirstName("Test FirstName1");
-        medicalRecord.setLastName("Test LastName1");
-        medicalRecord.setBirthdate("11/11/1111");
-        medicalRecord.setMedications(Arrays.asList("Medication Test1", "Medication Test2"));
-        medicalRecord.setAllergies(Arrays.asList("Allergies Test1", "Allergies Test2"));
-
-        MedicalRecord medicalRecord1 = new MedicalRecord();
-        medicalRecord1.setId(1L);
-        medicalRecord1.setFirstName("Test FirstName");
-        medicalRecord1.setLastName("Test LastName");
-        medicalRecord1.setBirthdate("11/11/1222");
-        medicalRecord1.setMedications(Arrays.asList("Medication Test3", "Medication Test4"));
-        medicalRecord1.setAllergies(Arrays.asList("Allergies Test3", "Allergies Test4"));
-
-        medicalRecordList.add(medicalRecord);
-        medicalRecordList.add(medicalRecord1);
-
-        when(medicalRecordRepositories.saveAll(medicalRecordList)).thenReturn(medicalRecordList);
-
-        Iterable<MedicalRecord> result = medicalRecordService.save(medicalRecordList);
+        List<MedicalRecord> result = medicalRecordService.addMedicalRecord(new MedicalRecord());
 
         assertEquals(medicalRecordList, result);
     }
 
     @Test
-    void testGetMedicalRecordByCompleteName() {
-        String firstName = "Marneus";
-        String lastName = "Calgar";
-        List<Object[]> expectedMedicalRecords = Collections.singletonList(new Object[]{"Aspirin", "100mg"});
+    public void testEditMedicalRecords() {
+        String firstName = "Test FirstName1";
+        String lastName = "Test LastName1";
+        MedicalRecord medicalRecord = new MedicalRecord("Test FirstName1", "Test LastName1", "11/11/1111", List.of("Medication Test1"), List.of("Allergies Test1"));
+        List<MedicalRecord> listTestMedicalRecord = new ArrayList(Collections.singleton(medicalRecord));
+        when(medicalRecordRepositories.getMedicalRecords()).thenReturn(listTestMedicalRecord);
 
-        when(medicalRecordRepositories.findMedicalRecordByCompleteName(firstName, lastName)).thenReturn(expectedMedicalRecords);
+        MedicalRecord updatedMedicalRecord = new MedicalRecord(firstName, lastName, "11/11/1222", List.of("Medication Test2"), List.of("Allergies Test2"));
 
-        List<Object[]> result = medicalRecordService.getMedicalRecordByCompleteName(firstName, lastName);
+        boolean result = medicalRecordService.editMedicalRecords(firstName, lastName, updatedMedicalRecord);
 
-        assertEquals(expectedMedicalRecords, result);
+        assertTrue(result);
+
+        assertEquals("11/11/1222", medicalRecord.getBirthdate());
+        assertEquals(List.of("Medication Test2"), medicalRecord.getMedications());
+        assertEquals(List.of("Allergies Test2"), medicalRecord.getAllergies());
     }
 
     @Test
+    public void testdeleteMedicalRecordByName() {
+        MedicalRecord medicalRecord1 = new MedicalRecord("Test FirstName1", "Test LastName1", "11/11/1111", Arrays.asList("Medication Test1", "Medication Test2"), Arrays.asList("Allergies Test1", "Allergies Test2"));
+        MedicalRecord medicalRecord2 = new MedicalRecord("Test FirstName2", "Test LastName2", "11/11/1222", Arrays.asList("Medication Test3", "Medication Test4"), Arrays.asList("Allergies Test3", "Allergies Test4"));
+        MedicalRecord medicalRecord3 = new MedicalRecord("Test FirstName3", "Test LastName3", "11/11/1333", Arrays.asList("Medication Test5", "Medication Test6"), Arrays.asList("Allergies Test5", "Allergies Test6"));
+        List<MedicalRecord> medicalRecordList = Arrays.asList(medicalRecord1,medicalRecord2,medicalRecord3);
+        String firstName = "Test FirstName1";
+        String lastName = "Test LastName1";
+
+        when(medicalRecordRepositories.getMedicalRecords()).thenReturn(medicalRecordList);
+
+        List<MedicalRecord> updatedMedicalRecord = medicalRecordService.deleteMedicalRecordByName(firstName, lastName);
+
+        assertEquals(2, updatedMedicalRecord.size());
+    }
+
+    @Test
+    void testGetMedicalRecordByCompleteName() {
+        String firstName = "Test FirstName1";
+        String lastName = "Test LastName1";
+        List<MedicalRecord> listTestMedicalRecord = Arrays.asList(
+                new MedicalRecord("Test FirstName1", "Test LastName1", "11/11/1111", Arrays.asList("Medication Test1"), Arrays.asList("Allergies Test1")),
+                new MedicalRecord("Test FirstName2", "Test LastName2", "22/02/1112", Arrays.asList("Medication Test3", "Medication Test4"), Arrays.asList("Allergies Test3", "Allergies Test4")));
+
+        when(medicalRecordRepositories.getMedicalRecords()).thenReturn(listTestMedicalRecord);
+
+        List<Object[]> result = medicalRecordService.getMedicalRecordByCompleteName(firstName, lastName);
+
+        Object[] record1 = result.get(0);
+        assertEquals(List.of("Medication Test1"), record1[0]);
+        assertEquals(List.of("Allergies Test1"), record1[1]);
+    }
+
+
+
+    @Test
     void testGetAgeByCompleteName() {
-        String firstName = "Marneus";
-        String lastName = "Calgar";
-        String birthday = "06/15/1986";
+        String firstName = "Test FirstName1";
+        String lastName = "Test LastName1";
+        String birthday = "11/11/1111";
+        List<MedicalRecord> listTestMedicalRecord = List.of(
+                new MedicalRecord("Test FirstName1", "Test LastName1", "11/11/1111", List.of("Medication Test1"), List.of("Allergies Test1")));
         LocalDate fakeCurrentDate = LocalDate.parse("01/01/2023", DateTimeFormatter.ofPattern("MM/dd/yyyy"));
 
-        when(medicalRecordRepositories.findBirthDayByCompleteName(firstName, lastName)).thenReturn(birthday);
+        when(medicalRecordRepositories.getMedicalRecords()).thenReturn(listTestMedicalRecord);
 
         int result = medicalRecordService.getAgeByCompleteName(firstName, lastName);
 
@@ -130,11 +125,13 @@ public class MedicalRecordTests {
 
     @Test
     void testChildOrNot(){
-        String birthdate = "09/06/2017";
-        String birthdateAdult = "02/28/1928";
+        int birthdate = 12;
+        int birthdateAdult =22;
+        List<MedicalRecord> listTestMedicalRecord = Arrays.asList(
+                new MedicalRecord("Marneus", "Calgar", "11/11/2015", Arrays.asList("Medication Test1"), Arrays.asList("Allergies Test1")),
+                new MedicalRecord("Sol", "Pyro", "11/02/1112", Arrays.asList("Medication Test3", "Medication Test4"), Arrays.asList("Allergies Test3", "Allergies Test4")));
 
-        when(medicalRecordRepositories.findBirthDayByCompleteName("Marneus", "Calgar")).thenReturn(birthdate);
-        when(medicalRecordRepositories.findBirthDayByCompleteName("Sol", "Pyro")).thenReturn(birthdateAdult);
+        when(medicalRecordRepositories.getMedicalRecords()).thenReturn(listTestMedicalRecord);
 
         boolean test = medicalRecordService.childOrNot("Marneus", "Calgar");
         assertTrue(test);

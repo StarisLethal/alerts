@@ -1,6 +1,5 @@
 package com.safetynet.alerts.controller;
 
-import com.safetynet.alerts.exception.ResourceNotFoundException;
 import com.safetynet.alerts.model.MedicalRecord;
 import com.safetynet.alerts.repositories.MedicalRecordRepositories;
 import com.safetynet.alerts.service.MedicalRecordService;
@@ -55,7 +54,7 @@ public class MedicalRecordController {
     }
 
     @PutMapping("/medicalRecord")
-    public ResponseEntity<Void> updateMedicalRecord(@PathVariable String firstName, @PathVariable String lastName, @RequestBody MedicalRecord medicalRecord) throws ResourceNotFoundException {
+    public ResponseEntity<Void> updateMedicalRecord(@PathVariable String firstName, @PathVariable String lastName, @RequestBody MedicalRecord medicalRecord){
         try {
 
             boolean successfulRequest = medicalRecordService.editMedicalRecords(firstName, lastName, medicalRecord);

@@ -30,7 +30,7 @@ public class MedicalRecordController {
         this.medicalRecordService = medicalRecordService;
     }
 
-    @GetMapping("/medicalrecords")
+    @GetMapping("/medicalRecords")
     public Iterable<MedicalRecord> list() {
         try {
             logger.info("GET request to /medicalrecord successful");
@@ -54,7 +54,7 @@ public class MedicalRecordController {
     }
 
     @PutMapping("/medicalRecord")
-    public ResponseEntity<Void> updateMedicalRecord(@PathVariable String firstName, @PathVariable String lastName, @RequestBody MedicalRecord medicalRecord){
+    public ResponseEntity<Void> updateMedicalRecord(@RequestParam String firstName, @RequestParam String lastName, @RequestBody MedicalRecord medicalRecord){
         try {
 
             boolean successfulRequest = medicalRecordService.editMedicalRecords(firstName, lastName, medicalRecord);

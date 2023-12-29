@@ -56,7 +56,7 @@ public class PersonController {
     }
 
     @PutMapping("/person")
-    public ResponseEntity<Person> updatePerson(@PathVariable String firstName, @PathVariable String lastName, @RequestBody Person personDetails) {
+    public ResponseEntity<Person> updatePerson(@RequestParam String firstName, @RequestParam String lastName, @RequestBody Person personDetails) {
         try {
             boolean successfulRequest = personService.editPerson(firstName, lastName, personDetails);
 

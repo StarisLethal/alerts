@@ -54,14 +54,14 @@ public class FirestationController {
         }
     }
 
-    @PutMapping("/firestation/{address}")
-    public ResponseEntity<Firestation> updateFirestation(@PathVariable String address, @RequestBody String station) {
+    @PutMapping("/firestation")
+    public ResponseEntity<Firestation> updateFirestation(@RequestParam String address, @RequestBody String station) {
         try {
 
             Optional<Firestation> updatedFirestation = firestationService.editFirestationNumber(address, station);
 
             logger.info("PUT request to /firestation/" + address + " successful");
-            return ResponseEntity.ok(updatedFirestation.get());
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error processing PUT request to /firestation/" + address, e);
             return null;
@@ -83,6 +83,7 @@ public class FirestationController {
 
             Map<String, Boolean> response = new HashMap<>();
             response.put("deleted", Boolean.TRUE);
+            logger.info("Delete request to /firestation/" + address + " successful");
             return response;
         } catch (Exception e) {
             logger.error("Error processing DELETE request to /firestation", e);

@@ -47,7 +47,7 @@ public class MedicalRecordControllerTests {
 
         when(medicalRecordService.list()).thenReturn(listTestMedicalRecord);
 
-        mockMvc.perform(get("/medicalrecords"))
+        mockMvc.perform(get("/medicalRecords"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
 

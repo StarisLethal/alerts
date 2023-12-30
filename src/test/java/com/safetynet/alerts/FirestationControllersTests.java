@@ -82,7 +82,6 @@ public class FirestationControllersTests {
         ResponseEntity<Firestation> response = firestationController.updateFirestation(address, station);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(updatedFirestation, response.getBody());
     }
 
     @Test

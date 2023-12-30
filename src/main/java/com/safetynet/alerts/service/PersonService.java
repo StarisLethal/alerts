@@ -27,8 +27,6 @@ public class PersonService {
 
     public List<Person> addPerson(Person newPerson) {
         List<Person> person = personRepositories.getPersons();
-        List<Person> updatedPerson = person.stream()
-                .toList();
 
         person.add(newPerson);
 

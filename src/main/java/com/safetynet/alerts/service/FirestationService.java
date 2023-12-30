@@ -26,8 +26,6 @@ public class FirestationService {
 
     public List<Firestation> addFirestation(Firestation newFirestation) {
         List<Firestation> fireStations = firestationRepositories.getFirestations();
-        List<Firestation> updatedFireStations = fireStations.stream()
-                .collect(Collectors.toList());
 
         fireStations.add(newFirestation);
 

@@ -92,7 +92,6 @@ public class PersonInfoControllerTests {
         String lastName = "TestLastName";
 
         PersonFireInfoDTO personFireInfoDTO = new PersonFireInfoDTO(personList, 30, new ArrayList<>());
-        List<PersonFireInfoDTO> persons = Collections.singletonList(personFireInfoDTO);
 
         when(personService.getFLPByAddress(address)).thenReturn(personList);
         when(firestationService.getFireStationByAddress(address)).thenReturn(firestationNumber);

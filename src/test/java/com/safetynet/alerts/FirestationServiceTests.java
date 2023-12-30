@@ -59,8 +59,6 @@ class FirestationServiceTests {
 
         when(firestationRepositories.getFirestations()).thenReturn(firestationList);
 
-        Firestation updatedFirestation = new Firestation("Test Address1", "Test NewStation");
-
         Optional<Firestation> result = firestationService.editFirestationNumber(currentAddress, newStationNumber);
 
         assertEquals(newStationNumber, result.get().getStation());

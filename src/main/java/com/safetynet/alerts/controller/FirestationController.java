@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @Controller
@@ -58,7 +57,7 @@ public class FirestationController {
     public ResponseEntity<Firestation> updateFirestation(@RequestParam String address, @RequestBody String station) {
         try {
 
-            Optional<Firestation> updatedFirestation = firestationService.editFirestationNumber(address, station);
+            firestationService.editFirestationNumber(address, station);
 
             logger.info("PUT request to /firestation/" + address + " successful");
             return new ResponseEntity<>(HttpStatus.OK);

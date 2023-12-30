@@ -125,8 +125,6 @@ public class MedicalRecordTests {
 
     @Test
     void testChildOrNot(){
-        int birthdate = 12;
-        int birthdateAdult =22;
         List<MedicalRecord> listTestMedicalRecord = Arrays.asList(
                 new MedicalRecord("Marneus", "Calgar", "11/11/2015", Arrays.asList("Medication Test1"), Arrays.asList("Allergies Test1")),
                 new MedicalRecord("Sol", "Pyro", "11/02/1112", Arrays.asList("Medication Test3", "Medication Test4"), Arrays.asList("Allergies Test3", "Allergies Test4")));

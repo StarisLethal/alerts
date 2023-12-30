@@ -86,8 +86,6 @@ public class FirestationControllersTests {
 
     @Test
     public void testDeleteFirestationByAddress() throws Exception {
-        Firestation firestation = new Firestation("Test Address1", "Test Firestation1");
-        String address = "Test Address1";
 
         mockMvc.perform(delete("/firestation")
                         .param("address", "Test Address1")
@@ -99,8 +97,6 @@ public class FirestationControllersTests {
 
     @Test
     public void testDeleteFirestationByStation() throws Exception {
-        Firestation firestation = new Firestation("Test Address1", "Test Firestation1");
-        String address = "Test Address1";
 
         mockMvc.perform(delete("/firestation")
                         .param("station", "Test Firestation1")

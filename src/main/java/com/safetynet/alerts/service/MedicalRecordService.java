@@ -1,10 +1,8 @@
 package com.safetynet.alerts.service;
 
-import com.safetynet.alerts.model.Firestation;
 import com.safetynet.alerts.model.MedicalRecord;
 import com.safetynet.alerts.repositories.MedicalRecordRepositories;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -31,8 +29,6 @@ public class MedicalRecordService {
 
     public List<MedicalRecord> addMedicalRecord(MedicalRecord newMedicalRecord) {
         List<MedicalRecord> medicalRecords = medicalRecordRepositories.getMedicalRecords();
-        List<MedicalRecord> updatedFireStations = medicalRecords.stream()
-                .collect(Collectors.toList());
 
         medicalRecords.add(newMedicalRecord);
 
